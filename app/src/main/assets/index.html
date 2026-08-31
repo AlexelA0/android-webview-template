@@ -1,411 +1,444 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Master App Template</title>
-<style>
-  :root {
-    --bg-primary: #0b132b;
-    --bg-card: #1c2541;
-    --accent: #00e676;
-    --text-primary: #ffffff;
-    --text-secondary: #778da9;
-    --border: #415a77;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>OkTimer</title>
+  <style>
+    :root {
+      --bg: #0b132b;
+      --card: #162238;
+      --card-border: #24344d;
+      --accent: #00e676;
+      --accent-glow: rgba(0, 230, 118, 0.25);
+      --text-main: #ffffff;
+      --text-muted: #8899ac;
+      --danger: #ff5252;
+      --warn: #ffab00;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow-x: hidden;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+    }
+    .app-header {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 4px 18px;
+    }
+    .app-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.5px;
+    }
+    .wake-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      padding: 6px 12px;
+      border-radius: 20px;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 34px;
+      height: 18px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #334155;
+      transition: .3s;
+      border-radius: 18px;
+    }
+    .slider:before {
+      position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+    input:checked + .slider { background-color: var(--accent); }
+    input:checked + .slider:before { transform: translateX(16px); }
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-    -webkit-user-select: none;
-  }
+    /* Main Dial Card */
+    .timer-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .progress-box {
+      position: relative;
+      width: 250px;
+      height: 250px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .progress-svg {
+      transform: rotate(-90deg);
+      width: 250px;
+      height: 250px;
+    }
+    .progress-bg {
+      fill: none;
+      stroke: #1c2b45;
+      stroke-width: 10;
+    }
+    .progress-bar {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 10;
+      stroke-linecap: round;
+      stroke-dasharray: 691;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 0.25s linear, stroke 0.3s ease;
+    }
+    .time-readout {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .digits {
+      font-size: 2.8rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 1px;
+    }
+    .sub-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-top: 4px;
+      letter-spacing: 1px;
+    }
 
-  html, body {
-    width: 100%;
-    height: 100%;
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    overflow: hidden;
-    overscroll-behavior: none;
-    overscroll-behavior-y: none;
-    touch-action: none;
-  }
+    /* Main Action Controls */
+    .control-row {
+      display: flex;
+      gap: 14px;
+      width: 100%;
+      max-width: 320px;
+      margin-top: 20px;
+    }
+    .btn {
+      flex: 1;
+      padding: 14px 18px;
+      font-size: 1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s ease, filter 0.2s ease;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-primary {
+      background: var(--accent);
+      color: #0b132b;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+    .btn-pause {
+      background: var(--warn);
+      color: #0b132b;
+    }
+    .btn-secondary {
+      background: #24344d;
+      color: var(--text-main);
+    }
 
-  /* Safe Insets (Prevents Android navigation / punch-hole overlap) */
-  .safe-wrapper {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    padding-top: max(16px, env(safe-area-inset-top));
-    padding-bottom: max(16px, env(safe-area-inset-bottom));
-    padding-left: max(16px, env(safe-area-inset-left));
-    padding-right: max(16px, env(safe-area-inset-right));
-    justify-content: space-between;
-  }
+    /* Quick Adjust Buttons */
+    .adjust-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      width: 100%;
+      max-width: 420px;
+      margin-bottom: 16px;
+    }
+    .adj-btn {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 10px 4px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .adj-btn:active {
+      background: var(--accent);
+      color: #0b132b;
+    }
 
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-  }
-
-  .app-badge {
-    font-size: 1.15rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    color: var(--accent);
-  }
-
-  .content-area {
-    flex: 1;
-    overflow-y: auto;
-    margin: 12px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-  }
-
-  .card-title {
-    font-size: 0.95rem;
-    font-weight: 700;
-    margin-bottom: 6px;
-    color: #e0e1dd;
-  }
-
-  .card-desc {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    margin-bottom: 12px;
-  }
-
-  .grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .btn {
-    padding: 12px 14px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: #0b132b;
-    color: #fff;
-    font-weight: 600;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: transform 0.1s;
-  }
-
-  .btn:active {
-    transform: scale(0.96);
-    background: var(--accent);
-    color: #0b132b;
-  }
-
-  .btn-accent {
-    background: var(--accent);
-    color: #0b132b;
-    border: none;
-  }
-
-  /* Full Screen Overlay Modal */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(11, 19, 43, 0.95);
-    z-index: 999;
-    padding: 24px 16px;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  .modal-overlay.open {
-    display: flex;
-  }
-
-  /* Circular Spectrum Color Wheel */
-  .wheel-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    margin: 10px 0;
-  }
-
-  .spectrum-canvas {
-    width: 220px;
-    height: 220px;
-    border-radius: 50%;
-    cursor: crosshair;
-    border: 3px solid var(--border);
-  }
-
-  .lum-slider {
-    width: 220px;
-    -webkit-appearance: none;
-    height: 10px;
-    border-radius: 5px;
-    background: linear-gradient(to right, #000, #fff);
-    outline: none;
-  }
-
-  .lum-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--accent);
-    border: 2px solid #fff;
-    cursor: pointer;
-  }
-
-  .target-tabs {
-    display: flex;
-    gap: 8px;
-  }
-
-  .tab-btn {
-    padding: 6px 12px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: #0b132b;
-    color: #fff;
-    font-size: 0.75rem;
-    cursor: pointer;
-  }
-
-  .tab-btn.active {
-    background: var(--accent);
-    color: #0b132b;
-  }
-
-  .capsule-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 220px;
-    background: #0b132b;
-    padding: 8px 12px;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-  }
-
-  .preview-capsule {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: var(--accent);
-    border: 2px solid #fff;
-  }
-
-  .hex-badge {
-    font-size: 0.85rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-  }
-</style>
+    /* Presets Section */
+    .section-title {
+      width: 100%;
+      max-width: 420px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      font-weight: 600;
+      text-align: left;
+      padding-left: 4px;
+    }
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      width: 100%;
+      max-width: 420px;
+      margin-bottom: 24px;
+    }
+    .preset-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      padding: 12px 8px;
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .preset-card:active {
+      border-color: var(--accent);
+      background: #1e3150;
+    }
+    .preset-name {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .preset-time {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+  </style>
 </head>
 <body>
 
-<div class="safe-wrapper">
-  <div class="header">
-    <div class="app-badge">⚡ MASTER SHELL</div>
-    <button class="btn" style="padding: 6px 12px;" onclick="openModal('colorModal')">🎨 Color Wheel</button>
-  </div>
+  <header class="app-header">
+    <div class="app-title">&#9201; OkTimer</div>
+    <label class="wake-toggle">
+      <span>Awake</span>
+      <span class="switch">
+        <input type="checkbox" id="wakeLock" onchange="toggleWake(this)">
+        <span class="slider"></span>
+      </span>
+    </label>
+  </header>
 
-  <div class="content-area">
-    <!-- Haptics Card -->
-    <div class="card">
-      <div class="card-title">1. Native Haptic Feedback</div>
-      <div class="card-desc">Hardware vibration patterns directly via Kotlin Bridge.</div>
-      <div class="grid-2">
-        <button class="btn" onclick="haptic('click')">Tick Click</button>
-        <button class="btn" onclick="haptic('heavy')">Heavy Click</button>
-        <button class="btn" onclick="haptic('double')">Double Pulse</button>
-        <button class="btn" onclick="haptic('shot')">One Shot</button>
+  <div class="timer-card">
+    <div class="progress-box">
+      <svg class="progress-svg">
+        <circle class="progress-bg" cx="125" cy="125" r="110"></circle>
+        <circle class="progress-bar" id="progressBar" cx="125" cy="125" r="110"></circle>
+      </svg>
+      <div class="time-readout">
+        <span class="digits" id="timeDisplay">05:00</span>
+        <span class="sub-label" id="statusLabel">READY</span>
       </div>
     </div>
 
-    <!-- Notifications Card -->
-    <div class="card">
-      <div class="card-title">2. Android System Alert</div>
-      <div class="card-desc">Sends high-priority channel notification with custom sound/icon.</div>
-      <button class="btn btn-accent" style="width: 100%;" onclick="sendAlert()">Push Native Notification</button>
-    </div>
-
-    <!-- Back Button Tester -->
-    <div class="card">
-      <div class="card-title">3. Hardware Back-Button Test</div>
-      <div class="card-desc">Pressing phone's back button will dismiss sheet without closing app.</div>
-      <button class="btn" style="width: 100%;" onclick="openModal('sampleModal')">Open Test Sheet</button>
+    <div class="control-row">
+      <button class="btn btn-secondary" onclick="resetTimer()">Reset</button>
+      <button class="btn btn-primary" id="startBtn" onclick="toggleTimer()">Start</button>
     </div>
   </div>
 
-  <div class="card" style="padding: 10px; display: flex; justify-content: space-between; align-items: center;">
-    <span style="font-size: 0.8rem; color: var(--text-secondary);">Keep Screen Awake</span>
-    <button class="btn" id="wakeBtn" style="padding: 6px 12px;" onclick="toggleWakeLock()">OFF</button>
+  <div class="adjust-grid">
+    <button class="adj-btn" onclick="addSeconds(60)">+1 Min</button>
+    <button class="adj-btn" onclick="addSeconds(300)">+5 Min</button>
+    <button class="adj-btn" onclick="addSeconds(600)">+10 Min</button>
+    <button class="adj-btn" onclick="addSeconds(-60)">-1 Min</button>
   </div>
-</div>
 
-<!-- Modal 1: Sample Back-Button Sheet -->
-<div class="modal-overlay" id="sampleModal">
-  <div>
-    <h2 style="margin-bottom: 8px;">Hardware Back Trapped</h2>
-    <p style="color: var(--text-secondary); font-size: 0.9rem;">
-      Press your phone's physical back key or bottom gesture. The app will close this modal rather than exiting.
-    </p>
-  </div>
-  <button class="btn btn-accent" onclick="closeModal('sampleModal')">Close Sheet</button>
-</div>
-
-<!-- Modal 2: Circular Spectrum Color Wheel -->
-<div class="modal-overlay" id="colorModal">
-  <div>
-    <h2>Custom Circular Spectrum</h2>
-    <div class="wheel-container">
-      <div class="target-tabs">
-        <button class="tab-btn active" id="tabMain">Main Accent</button>
-        <button class="tab-btn" id="tabBg">Card Theme</button>
-      </div>
-
-      <canvas id="spectrumCanvas" class="spectrum-canvas" width="220" height="220"></canvas>
-      <input type="range" id="lumSlider" class="lum-slider" min="0" max="100" value="50">
-
-      <div class="capsule-row">
-        <div class="preview-capsule" id="liveCapsule"></div>
-        <div class="hex-badge" id="hexBadge">#00E676</div>
-      </div>
+  <div class="section-title">Quick Presets</div>
+  <div class="preset-grid">
+    <div class="preset-card" onclick="setPreset(60, '1 Minute')">
+      <div class="preset-name">Quick</div>
+      <div class="preset-time">1:00</div>
+    </div>
+    <div class="preset-card" onclick="setPreset(300, '5 Minutes')">
+      <div class="preset-name">Short Break</div>
+      <div class="preset-time">5:00</div>
+    </div>
+    <div class="preset-card" onclick="setPreset(600, '10 Minutes')">
+      <div class="preset-name">Coffee</div>
+      <div class="preset-time">10:00</div>
+    </div>
+    <div class="preset-card" onclick="setPreset(1500, 'Pomodoro')">
+      <div class="preset-name">Pomodoro</div>
+      <div class="preset-time">25:00</div>
+    </div>
+    <div class="preset-card" onclick="setPreset(2700, 'Deep Work')">
+      <div class="preset-name">Deep Work</div>
+      <div class="preset-time">45:00</div>
+    </div>
+    <div class="preset-card" onclick="setPreset(3600, 'Full Hour')">
+      <div class="preset-name">Standard</div>
+      <div class="preset-time">60:00</div>
     </div>
   </div>
-  <button class="btn btn-accent" onclick="closeModal('colorModal')">Save Color & Return</button>
-</div>
 
-<script>
-  let activeModalId = null;
-  let keepAwake = false;
+  <script src="bridge.js"></script>
+  <script>
+    let totalSeconds = 300;
+    let remainingSeconds = 300;
+    let timerInterval = null;
+    let isRunning = false;
 
-  // --- 1. Bridge Invocations ---
-  function haptic(type) {
-    if (window.AndroidInterface) {
-      window.AndroidInterface.triggerVibrate(type);
+    const CIRCUMFERENCE = 2 * Math.PI * 110;
+    const progressBar = document.getElementById('progressBar');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const statusLabel = document.getElementById('statusLabel');
+    const startBtn = document.getElementById('startBtn');
+
+    function updateDisplay() {
+      const mins = Math.floor(remainingSeconds / 60);
+      const secs = remainingSeconds % 60;
+      timeDisplay.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      
+      const fraction = totalSeconds > 0 ? remainingSeconds / totalSeconds : 0;
+      const offset = CIRCUMFERENCE * (1 - fraction);
+      progressBar.style.strokeDashoffset = offset;
     }
-  }
 
-  function sendAlert() {
-    haptic('heavy');
-    if (window.AndroidInterface) {
-      window.AndroidInterface.triggerNotification("Master Shell", "High-priority notification test passed.");
-    }
-  }
-
-  function toggleWakeLock() {
-    keepAwake = !keepAwake;
-    const btn = document.getElementById('wakeBtn');
-    btn.textContent = keepAwake ? "ON" : "OFF";
-    btn.style.background = keepAwake ? "var(--accent)" : "#0b132b";
-    btn.style.color = keepAwake ? "#0b132b" : "#fff";
-    if (window.AndroidInterface) {
-      window.AndroidInterface.setKeepScreenOn(keepAwake);
-    }
-  }
-
-  // --- 2. Hardware Back Button Interceptor ---
-  function handleAndroidBack() {
-    if (activeModalId) {
-      closeModal(activeModalId);
-      return true; // Tells Android: "Event consumed, do not exit app"
-    }
-    return false; // Tells Android: "Allow normal back navigation / exit"
-  }
-
-  function openModal(id) {
-    haptic('click');
-    activeModalId = id;
-    document.getElementById(id).classList.add('open');
-    if (id === 'colorModal') initColorWheel();
-  }
-
-  function closeModal(id) {
-    haptic('click');
-    document.getElementById(id).classList.remove('open');
-    activeModalId = null;
-  }
-
-  // --- 3. Circular Spectrum Color Wheel Logic ---
-  let curHue = 145, curSat = 100, curLum = 50;
-  function initColorWheel() {
-    const canvas = document.getElementById('spectrumCanvas');
-    const ctx = canvas.getContext('2d');
-    const radius = canvas.width / 2;
-
-    for (let y = -radius; y < radius; y++) {
-      for (let x = -radius; x < radius; x++) {
-        const dist = Math.sqrt(x * x + y * y);
-        if (dist <= radius) {
-          let deg = Math.atan2(y, x) * (180 / Math.PI) + 90;
-          if (deg < 0) deg += 360;
-          const sat = (dist / radius) * 100;
-          ctx.fillStyle = `hsl(${deg}, ${sat}%, 50%)`;
-          ctx.fillRect(x + radius, y + radius, 1, 1);
-        }
+    function toggleTimer() {
+      if (typeof haptic === 'function') haptic('click');
+      
+      if (isRunning) {
+        pauseTimer();
+      } else {
+        startTimer();
       }
     }
 
-    function pickColor(e) {
-      const rect = canvas.getBoundingClientRect();
-      const cx = e.touches ? e.touches[0].clientX : e.clientX;
-      const cy = e.touches ? e.touches[0].clientY : e.clientY;
-      const x = cx - rect.left - radius;
-      const y = cy - rect.top - radius;
-      const dist = Math.min(radius, Math.sqrt(x * x + y * y));
+    function startTimer() {
+      if (remainingSeconds <= 0) remainingSeconds = totalSeconds;
+      isRunning = true;
+      statusLabel.textContent = "RUNNING";
+      startBtn.textContent = "Pause";
+      startBtn.className = "btn btn-pause";
 
-      let deg = Math.atan2(y, x) * (180 / Math.PI) + 90;
-      if (deg < 0) deg += 360;
-      curHue = deg;
-      curSat = (dist / radius) * 100;
-      updateColor();
+      timerInterval = setInterval(() => {
+        if (remainingSeconds > 0) {
+          remainingSeconds--;
+          updateDisplay();
+        } else {
+          finishTimer();
+        }
+      }, 1000);
     }
 
-    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); pickColor(e); }, { passive: false });
-    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); pickColor(e); }, { passive: false });
-    
-    document.getElementById('lumSlider').addEventListener('input', (e) => {
-      curLum = e.target.value;
-      updateColor();
-    });
-  }
+    function pauseTimer() {
+      isRunning = false;
+      clearInterval(timerInterval);
+      statusLabel.textContent = "PAUSED";
+      startBtn.textContent = "Resume";
+      startBtn.className = "btn btn-primary";
+    }
 
-  function updateColor() {
-    const hsl = `hsl(${curHue}, ${curSat}%, ${curLum}%)`;
-    const hex = hslToHex(curHue, curSat, curLum);
-    document.getElementById('liveCapsule').style.backgroundColor = hsl;
-    document.getElementById('hexBadge').textContent = hex;
-    document.documentElement.style.setProperty('--accent', hex);
-  }
+    function resetTimer() {
+      if (typeof haptic === 'function') haptic('click');
+      isRunning = false;
+      clearInterval(timerInterval);
+      remainingSeconds = totalSeconds;
+      statusLabel.textContent = "READY";
+      startBtn.textContent = "Start";
+      startBtn.className = "btn btn-primary";
+      updateDisplay();
+    }
 
-  function hslToHex(h, s, l) {
-    l /= 100;
-    const a = s * Math.min(l, 1 - l) / 100;
-    const f = n => {
-      const k = (n + h / 30) % 12;
-      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-      return Math.round(255 * color).toString(16).padStart(2, '0');
-    };
-    return `#${f(0)}${f(8)}${f(4)}`.toUpperCase();
-  }
-</script>
+    function addSeconds(sec) {
+      if (typeof haptic === 'function') haptic('click');
+      totalSeconds = Math.max(10, totalSeconds + sec);
+      remainingSeconds = Math.max(0, remainingSeconds + sec);
+      updateDisplay();
+    }
+
+    function setPreset(sec, label) {
+      if (typeof haptic === 'function') haptic('double');
+      isRunning = false;
+      clearInterval(timerInterval);
+      totalSeconds = sec;
+      remainingSeconds = sec;
+      statusLabel.textContent = label.toUpperCase();
+      startBtn.textContent = "Start";
+      startBtn.className = "btn btn-primary";
+      updateDisplay();
+    }
+
+    function finishTimer() {
+      clearInterval(timerInterval);
+      isRunning = false;
+      statusLabel.textContent = "COMPLETED";
+      startBtn.textContent = "Start";
+      startBtn.className = "btn btn-primary";
+
+      if (typeof haptic === 'function') haptic('heavy');
+      if (typeof sendNotification === 'function') {
+        sendNotification("OkTimer", "Time is up! Your timer has completed.");
+      }
+      playAlertBeep();
+    }
+
+    function toggleWake(cb) {
+      if (typeof setScreenAwake === 'function') {
+        setScreenAwake(cb.checked);
+      }
+      if (typeof haptic === 'function') haptic('click');
+    }
+
+    function playAlertBeep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.8);
+      } catch(e) {}
+    }
+
+    updateDisplay();
+  </script>
 </body>
 </html>
