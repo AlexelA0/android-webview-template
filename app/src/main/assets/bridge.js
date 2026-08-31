@@ -1,3 +1,15 @@
+window.scheduleNativeAlarm = function(targetEpochMs, label) {
+  if (window.AndroidInterface && window.AndroidInterface.scheduleAlarm) {
+    window.AndroidInterface.scheduleAlarm(targetEpochMs, label || "Time is up!");
+  }
+};
+
+window.cancelNativeAlarm = function() {
+  if (window.AndroidInterface && window.AndroidInterface.cancelAlarm) {
+    window.AndroidInterface.cancelAlarm();
+  }
+};
+
 window.haptic = function(type) {
   if (window.AndroidInterface && window.AndroidInterface.triggerVibrate) {
     window.AndroidInterface.triggerVibrate(type);
