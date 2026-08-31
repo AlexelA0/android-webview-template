@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Master App Template</title>
+<style>
+  :root {
+    --bg-primary: #0b132b;
+    --bg-card: #1c2541;
+    --accent: #00e676;
+    --text-primary: #ffffff;
+    --text-secondary: #778da9;
+    --border: #415a77;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden;
+    overscroll-behavior: none;
+    overscroll-behavior-y: none;
+    touch-action: none;
+  }
+
+  /* Safe Insets (Prevents Android navigation / punch-hole overlap) */
+  .safe-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+    justify-content: space-between;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+  }
+
+  .app-badge {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--accent);
+  }
+
+  .content-area {
+    flex: 1;
+    overflow-y: auto;
+    margin: 12px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .card-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #e0e1dd;
+  }
+
+  .card-desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #0b132b;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+
+  .btn:active {
+    transform: scale(0.96);
+    background: var(--accent);
+    color: #0b132b;
+  }
+
+  .btn-accent {
+    background: var(--accent);
+    color: #0b132b;
+    border: none;
+  }
+
+  /* Full Screen Overlay Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(11, 19, 43, 0.95);
+    z-index: 999;
+    padding: 24px 16px;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .modal-overlay.open {
+    display: flex;
+  }
+
+  /* Circular Spectrum Color Wheel */
+  .wheel-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0;
+  }
+
+  .spectrum-canvas {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    cursor: crosshair;
+    border: 3px solid var(--border);
+  }
+
+  .lum-slider {
+    width: 220px;
+    -webkit-appearance: none;
+    height: 10px;
+    border-radius: 5px;
+    background: linear-gradient(to right, #000, #fff);
+    outline: none;
+  }
+
+  .lum-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid #fff;
+    cursor: pointer;
+  }
+
+  .target-tabs {
+    display: flex;
+    gap: 8px;
+  }
+
+  .tab-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: #0b132b;
+    color: #fff;
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  .tab-btn.active {
+    background: var(--accent);
+    color: #0b132b;
+  }
+
+  .capsule-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 220px;
+    background: #0b132b;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+  }
+
+  .preview-capsule {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid #fff;
+  }
+
+  .hex-badge {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="safe-wrapper">
+  <div class="header">
+    <div class="app-badge">⚡ MASTER SHELL</div>
+    <button class="btn" style="padding: 6px 12px;" onclick="openModal('colorModal')">🎨 Color Wheel</button>
+  </div>
+
+  <div class="content-area">
+    <!-- Haptics Card -->
+    <div class="card">
+      <div class="card-title">1. Native Haptic Feedback</div>
+      <div class="card-desc">Hardware vibration patterns directly via Kotlin Bridge.</div>
+      <div class="grid-2">
+        <button class="btn" onclick="haptic('click')">Tick Click</button>
+        <button class="btn" onclick="haptic('heavy')">Heavy Click</button>
+        <button class="btn" onclick="haptic('double')">Double Pulse</button>
+        <button class="btn" onclick="haptic('shot')">One Shot</button>
+      </div>
+    </div>
+
+    <!-- Notifications Card -->
+    <div class="card">
+      <div class="card-title">2. Android System Alert</div>
+      <div class="card-desc">Sends high-priority channel notification with custom sound/icon.</div>
+      <button class="btn btn-accent" style="width: 100%;" onclick="sendAlert()">Push Native Notification</button>
+    </div>
+
+    <!-- Back Button Tester -->
+    <div class="card">
+      <div class="card-title">3. Hardware Back-Button Test</div>
+      <div class="card-desc">Pressing phone's back button will dismiss sheet without closing app.</div>
+      <button class="btn" style="width: 100%;" onclick="openModal('sampleModal')">Open Test Sheet</button>
+    </div>
+  </div>
+
+  <div class="card" style="padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+    <span style="font-size: 0.8rem; color: var(--text-secondary);">Keep Screen Awake</span>
+    <button class="btn" id="wakeBtn" style="padding: 6px 12px;" onclick="toggleWakeLock()">OFF</button>
+  </div>
+</div>
+
+<!-- Modal 1: Sample Back-Button Sheet -->
+<div class="modal-overlay" id="sampleModal">
+  <div>
+    <h2 style="margin-bottom: 8px;">Hardware Back Trapped</h2>
+    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+      Press your phone's physical back key or bottom gesture. The app will close this modal rather than exiting.
+    </p>
+  </div>
+  <button class="btn btn-accent" onclick="closeModal('sampleModal')">Close Sheet</button>
+</div>
+
+<!-- Modal 2: Circular Spectrum Color Wheel -->
+<div class="modal-overlay" id="colorModal">
+  <div>
+    <h2>Custom Circular Spectrum</h2>
+    <div class="wheel-container">
+      <div class="target-tabs">
+        <button class="tab-btn active" id="tabMain">Main Accent</button>
+        <button class="tab-btn" id="tabBg">Card Theme</button>
+      </div>
+
+      <canvas id="spectrumCanvas" class="spectrum-canvas" width="220" height="220"></canvas>
+      <input type="range" id="lumSlider" class="lum-slider" min="0" max="100" value="50">
+
+      <div class="capsule-row">
+        <div class="preview-capsule" id="liveCapsule"></div>
+        <div class="hex-badge" id="hexBadge">#00E676</div>
+      </div>
+    </div>
+  </div>
+  <button class="btn btn-accent" onclick="closeModal('colorModal')">Save Color & Return</button>
+</div>
+
+<script>
+  let activeModalId = null;
+  let keepAwake = false;
+
+  // --- 1. Bridge Invocations ---
+  function haptic(type) {
+    if (window.AndroidInterface) {
+      window.AndroidInterface.triggerVibrate(type);
+    }
+  }
+
+  function sendAlert() {
+    haptic('heavy');
+    if (window.AndroidInterface) {
+      window.AndroidInterface.triggerNotification("Master Shell", "High-priority notification test passed.");
+    }
+  }
+
+  function toggleWakeLock() {
+    keepAwake = !keepAwake;
+    const btn = document.getElementById('wakeBtn');
+    btn.textContent = keepAwake ? "ON" : "OFF";
+    btn.style.background = keepAwake ? "var(--accent)" : "#0b132b";
+    btn.style.color = keepAwake ? "#0b132b" : "#fff";
+    if (window.AndroidInterface) {
+      window.AndroidInterface.setKeepScreenOn(keepAwake);
+    }
+  }
+
+  // --- 2. Hardware Back Button Interceptor ---
+  function handleAndroidBack() {
+    if (activeModalId) {
+      closeModal(activeModalId);
+      return true; // Tells Android: "Event consumed, do not exit app"
+    }
+    return false; // Tells Android: "Allow normal back navigation / exit"
+  }
+
+  function openModal(id) {
+    haptic('click');
+    activeModalId = id;
+    document.getElementById(id).classList.add('open');
+    if (id === 'colorModal') initColorWheel();
+  }
+
+  function closeModal(id) {
+    haptic('click');
+    document.getElementById(id).classList.remove('open');
+    activeModalId = null;
+  }
+
+  // --- 3. Circular Spectrum Color Wheel Logic ---
+  let curHue = 145, curSat = 100, curLum = 50;
+  function initColorWheel() {
+    const canvas = document.getElementById('spectrumCanvas');
+    const ctx = canvas.getContext('2d');
+    const radius = canvas.width / 2;
+
+    for (let y = -radius; y < radius; y++) {
+      for (let x = -radius; x < radius; x++) {
+        const dist = Math.sqrt(x * x + y * y);
+        if (dist <= radius) {
+          let deg = Math.atan2(y, x) * (180 / Math.PI) + 90;
+          if (deg < 0) deg += 360;
+          const sat = (dist / radius) * 100;
+          ctx.fillStyle = `hsl(${deg}, ${sat}%, 50%)`;
+          ctx.fillRect(x + radius, y + radius, 1, 1);
+        }
+      }
+    }
+
+    function pickColor(e) {
+      const rect = canvas.getBoundingClientRect();
+      const cx = e.touches ? e.touches[0].clientX : e.clientX;
+      const cy = e.touches ? e.touches[0].clientY : e.clientY;
+      const x = cx - rect.left - radius;
+      const y = cy - rect.top - radius;
+      const dist = Math.min(radius, Math.sqrt(x * x + y * y));
+
+      let deg = Math.atan2(y, x) * (180 / Math.PI) + 90;
+      if (deg < 0) deg += 360;
+      curHue = deg;
+      curSat = (dist / radius) * 100;
+      updateColor();
+    }
+
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); pickColor(e); }, { passive: false });
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); pickColor(e); }, { passive: false });
+    
+    document.getElementById('lumSlider').addEventListener('input', (e) => {
+      curLum = e.target.value;
+      updateColor();
+    });
+  }
+
+  function updateColor() {
+    const hsl = `hsl(${curHue}, ${curSat}%, ${curLum}%)`;
+    const hex = hslToHex(curHue, curSat, curLum);
+    document.getElementById('liveCapsule').style.backgroundColor = hsl;
+    document.getElementById('hexBadge').textContent = hex;
+    document.documentElement.style.setProperty('--accent', hex);
+  }
+
+  function hslToHex(h, s, l) {
+    l /= 100;
+    const a = s * Math.min(l, 1 - l) / 100;
+    const f = n => {
+      const k = (n + h / 30) % 12;
+      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+      return Math.round(255 * color).toString(16).padStart(2, '0');
+    };
+    return `#${f(0)}${f(8)}${f(4)}`.toUpperCase();
+  }
+</script>
+</body>
+</html>
