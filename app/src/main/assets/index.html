@@ -3,343 +3,987 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>OkTimer</title>
+  <title>3-OkTimer Master</title>
   <style>
     :root {
-      --bg: #0b132b;
-      --card: #162238;
-      --card-border: #24344d;
-      --accent: #00e676;
-      --accent-glow: rgba(0, 230, 118, 0.25);
-      --text-main: #ffffff;
-      --text-muted: #8899ac;
+      --theme-color: #56c589;
+      --theme-glow: rgba(86, 197, 137, 0.35);
+      --bg-color: #080e18;
+      --card-bg: #111a2e;
+      --card-border: #1c2b45;
+      --text-muted: rgba(255, 255, 255, 0.4);
       --danger: #ff5252;
       --warn: #ffab00;
     }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      -webkit-tap-highlight-color: transparent;
       user-select: none;
-    }
-    html, body {
-      width: 100%;
-      height: 100%;
-      background-color: var(--bg);
-      color: var(--text-main);
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      overflow-x: hidden;
-      overflow-y: auto;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: #ffffff;
+      height: 100vh;
+      height: 100dvh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 16px;
+      justify-content: space-between;
+      overflow: hidden;
+      touch-action: none;
+      padding: max(12px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom));
     }
-    .app-header {
+
+    /* Top Navigation Header */
+    .top-bar {
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 4px 18px;
+      padding: 4px 12px;
+      z-index: 10;
     }
-    .app-title {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--accent);
-      letter-spacing: 0.5px;
-    }
-    .wake-toggle {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      padding: 6px 12px;
-      border-radius: 20px;
-    }
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 34px;
-      height: 18px;
-    }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #334155;
-      transition: .3s;
-      border-radius: 18px;
-    }
-    .slider:before {
-      position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px;
-      background-color: white;
-      transition: .3s;
-      border-radius: 50%;
-    }
-    input:checked + .slider { background-color: var(--accent); }
-    input:checked + .slider:before { transform: translateX(16px); }
 
-    /* Main Dial Card */
-    .timer-card {
-      width: 100%;
-      max-width: 420px;
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      padding: 24px 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    }
-    .progress-box {
-      position: relative;
-      width: 250px;
-      height: 250px;
+    .icon-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 22px;
+      cursor: pointer;
+      padding: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-    .progress-svg {
-      transform: rotate(-90deg);
-      width: 250px;
-      height: 250px;
-    }
-    .progress-bg {
-      fill: none;
-      stroke: #1c2b45;
-      stroke-width: 10;
-    }
-    .progress-bar {
-      fill: none;
-      stroke: var(--accent);
-      stroke-width: 10;
-      stroke-linecap: round;
-      stroke-dasharray: 691;
-      stroke-dashoffset: 0;
-      transition: stroke-dashoffset 0.25s linear, stroke 0.3s ease;
-    }
-    .time-readout {
-      position: absolute;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .digits {
-      font-size: 2.8rem;
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: 1px;
-    }
-    .sub-label {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      margin-top: 4px;
-      letter-spacing: 1px;
+      transition: color 0.2s, transform 0.1s;
     }
 
-    /* Main Action Controls */
-    .control-row {
+    .icon-btn:active {
+      color: #ffffff;
+      transform: scale(0.92);
+    }
+
+    .pager-dots {
       display: flex;
       gap: 14px;
-      width: 100%;
-      max-width: 320px;
-      margin-top: 20px;
+      align-items: center;
     }
-    .btn {
-      flex: 1;
-      padding: 14px 18px;
-      font-size: 1rem;
-      font-weight: 700;
-      border: none;
-      border-radius: 14px;
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      background: transparent;
+      transition: all 0.25s ease;
       cursor: pointer;
+    }
+
+    .dot.active {
+      background: var(--theme-color);
+      border-color: var(--theme-color);
+      box-shadow: 0 0 10px var(--theme-color);
+      transform: scale(1.35);
+    }
+
+    /* Main High-Visibility Dial Area */
+    .timer-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      width: 100%;
+      max-width: 460px;
+      position: relative;
+    }
+
+    .dial-wrapper {
+      position: relative;
+      width: min(88vw, 44vh);
+      height: min(88vw, 44vh);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      touch-action: none;
+    }
+
+    .dial-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+      pointer-events: none;
+    }
+
+    .ring-bg {
+      stroke: rgba(255, 255, 255, 0.07);
+      stroke-width: 15;
+      fill: transparent;
+    }
+
+    .ring-progress {
+      stroke: var(--theme-color);
+      stroke-width: 15;
+      stroke-linecap: round;
+      fill: transparent;
+      stroke-dasharray: 816.81; /* 2 * PI * 130 */
+      stroke-dashoffset: 0;
+      filter: drop-shadow(0 0 10px var(--theme-glow));
+      transition: stroke 0.3s;
+    }
+
+    .dial-handle {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--theme-color);
+      box-shadow: 0 0 14px rgba(0, 0, 0, 0.9), 0 0 0 3px #ffffff;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      display: none;
+      z-index: 5;
+    }
+
+    /* Center Content Inside Dial */
+    .center-content {
+      position: relative;
+      width: 80%;
+      height: 80%;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      pointer-events: auto;
+    }
+
+    .timer-badge {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+      transition: color 0.3s;
+    }
+
+    .hiit-round-badge {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--warn);
+      margin-bottom: 2px;
+      display: none;
+    }
+
+    /* Giant Digits for Maximum Distance Visibility */
+    .time-digits {
+      font-size: clamp(42px, 12vw, 62px);
+      font-weight: 800;
+      display: flex;
+      align-items: baseline;
+      letter-spacing: -1px;
+      color: var(--theme-color);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .digit-group {
+      cursor: pointer;
+      display: inline-flex;
+      align-items: baseline;
+      padding: 2px 2px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .digit-group.selected {
+      color: var(--danger) !important;
+      background: rgba(255, 82, 82, 0.15);
+    }
+
+    .time-unit {
+      font-size: 14px;
+      font-weight: 700;
+      margin-left: 2px;
+      margin-right: 4px;
+      opacity: 0.55;
+    }
+
+    /* Dimmed, Low-Profile Start/Stop Button */
+    .start-btn {
+      margin-top: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.3) !important;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      cursor: pointer;
+      padding: 6px 20px;
+      transition: all 0.2s ease;
+    }
+
+    .start-btn:active {
+      color: rgba(255, 255, 255, 0.7) !important;
+      background: rgba(255, 255, 255, 0.08);
+      transform: scale(0.95);
+    }
+
+    /* HIIT Setup & Info Row */
+    .hiit-config-bar {
+      display: none;
+      width: 100%;
+      max-width: 360px;
+      justify-content: space-around;
+      margin-top: 14px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 8px 12px;
+    }
+
+    .hiit-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+
+    .hiit-box.active {
+      background: rgba(168, 85, 247, 0.2);
+      outline: 1px solid #a855f7;
+    }
+
+    .hiit-box-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+
+    .hiit-box-val {
+      font-size: 16px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    /* Bottom Actions Row */
+    .bottom-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: min(88vw, 360px);
+      margin-top: 10px;
+      z-index: 10;
+    }
+
+    .action-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 10px 16px;
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.1s ease, filter 0.2s ease;
-    }
-    .btn:active { transform: scale(0.96); }
-    .btn-primary {
-      background: var(--accent);
-      color: #0b132b;
-      box-shadow: 0 4px 14px var(--accent-glow);
-    }
-    .btn-pause {
-      background: var(--warn);
-      color: #0b132b;
-    }
-    .btn-secondary {
-      background: #24344d;
-      color: var(--text-main);
+      gap: 6px;
+      transition: transform 0.1s, border-color 0.2s, color 0.2s;
     }
 
-    /* Quick Adjust Buttons */
-    .adjust-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
+    .action-btn:active {
+      transform: scale(0.92);
+      color: #ffffff;
+      border-color: var(--theme-color);
+    }
+
+    .reset-icon {
+      font-size: 18px;
+    }
+
+    /* Modals Backdrop */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(6px);
+      display: none;
+      justify-content: center;
+      align-items: flex-end;
+      z-index: 100;
+    }
+
+    .modal-sheet {
+      background: #101828;
+      width: 100%;
+      max-width: 440px;
+      border-top-left-radius: 28px;
+      border-top-right-radius: 28px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-bottom: none;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding-bottom: max(28px, env(safe-area-inset-bottom));
+    }
+
+    .modal-title {
+      font-size: 19px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .tab-bar {
+      display: flex;
       gap: 8px;
-      width: 100%;
-      max-width: 420px;
-      margin-bottom: 16px;
-    }
-    .adj-btn {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      color: var(--text-main);
-      padding: 10px 4px;
-      border-radius: 10px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .adj-btn:active {
-      background: var(--accent);
-      color: #0b132b;
+      background: #080e18;
+      padding: 4px;
+      border-radius: 12px;
     }
 
-    /* Presets Section */
-    .section-title {
-      width: 100%;
-      max-width: 420px;
-      font-size: 0.9rem;
+    .tab-btn {
+      flex: 1;
+      padding: 8px 4px;
+      font-size: 12px;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
       color: var(--text-muted);
-      margin-bottom: 10px;
-      font-weight: 600;
-      text-align: left;
-      padding-left: 4px;
-    }
-    .preset-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      width: 100%;
-      max-width: 420px;
-      margin-bottom: 24px;
-    }
-    .preset-card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      padding: 12px 8px;
-      border-radius: 12px;
-      text-align: center;
       cursor: pointer;
     }
-    .preset-card:active {
-      border-color: var(--accent);
-      background: #1e3150;
+
+    .tab-btn.active {
+      background: #1e293b;
+      color: #ffffff;
     }
-    .preset-name {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-bottom: 4px;
+
+    /* Circular Color Picker */
+    .color-wheel-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      margin: 8px 0;
     }
-    .preset-time {
-      font-size: 1rem;
+
+    #colorCanvas {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      touch-action: none;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      cursor: crosshair;
+    }
+
+    .lum-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .lum-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 12px;
+      border-radius: 6px;
+      background: linear-gradient(to right, #000000, var(--theme-color), #ffffff);
+      outline: none;
+    }
+
+    .lum-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #ffffff;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(0,0,0,0.8);
+      border: 2px solid #000;
+    }
+
+    .color-preview-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: #080e18;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .preview-capsule {
+      width: 50px;
+      height: 26px;
+      border-radius: 13px;
+      border: 2px solid rgba(255,255,255,0.4);
+      background: var(--theme-color);
+    }
+
+    .hex-badge {
+      font-family: monospace;
+      font-size: 15px;
       font-weight: 700;
-      color: var(--text-main);
+      letter-spacing: 1px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 13px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+
+    .modal-btn.primary {
+      background: var(--theme-color);
+      color: #080e18;
+    }
+
+    .modal-btn.secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+    }
+
+    .setting-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .setting-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .input-text {
+      background: #080e18;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 11px 14px;
+      font-size: 15px;
+      color: #ffffff;
+      outline: none;
+    }
+
+    .input-text:focus {
+      border-color: var(--theme-color);
     }
   </style>
 </head>
-<body>
+<body id="appBody">
 
-  <header class="app-header">
-    <div class="app-title">&#9201; OkTimer</div>
-    <label class="wake-toggle">
-      <span>Awake</span>
-      <span class="switch">
-        <input type="checkbox" id="wakeLock" onchange="toggleWake(this)">
-        <span class="slider"></span>
-      </span>
-    </label>
-  </header>
+  <!-- Top Status & Navigation -->
+  <div class="top-bar">
+    <button class="icon-btn" onclick="openColorPicker(event)">🎨</button>
+    <div class="pager-dots">
+      <div class="dot active" onclick="switchTimer(0, event)"></div>
+      <div class="dot" onclick="switchTimer(1, event)"></div>
+      <div class="dot" onclick="switchTimer(2, event)"></div>
+    </div>
+    <button class="icon-btn" onclick="openSettings(event)">⚙️</button>
+  </div>
 
-  <div class="timer-card">
-    <div class="progress-box">
-      <svg class="progress-svg">
-        <circle class="progress-bg" cx="125" cy="125" r="110"></circle>
-        <circle class="progress-bar" id="progressBar" cx="125" cy="125" r="110"></circle>
+  <!-- Timer Card -->
+  <div class="timer-container">
+    <div class="dial-wrapper" id="dialWrapper">
+      <svg class="dial-svg" viewBox="0 0 300 300">
+        <circle class="ring-bg" cx="150" cy="150" r="130" />
+        <circle class="ring-progress" id="ringProgress" cx="150" cy="150" r="130" />
       </svg>
-      <div class="time-readout">
-        <span class="digits" id="timeDisplay">05:00</span>
-        <span class="sub-label" id="statusLabel">READY</span>
+      
+      <div class="dial-handle" id="dialHandle"></div>
+
+      <div class="center-content">
+        <div class="timer-badge" id="timerLabel">TIMER 1</div>
+        <div class="hiit-round-badge" id="hiitRoundBadge">ROUND 1 / 8</div>
+        
+        <div class="time-digits" id="timeDisplay">
+          <div class="digit-group" id="grp-h" onclick="handleUnitClick('h', event)">
+            <span id="txtH">0</span><span class="time-unit">H</span>
+          </div>
+          <div class="digit-group" id="grp-m" onclick="handleUnitClick('m', event)">
+            <span id="txtM">01</span><span class="time-unit">M</span>
+          </div>
+          <div class="digit-group" id="grp-s" onclick="handleUnitClick('s', event)">
+            <span id="txtS">00</span><span class="time-unit">S</span>
+          </div>
+        </div>
+        <button class="start-btn" id="btnStart" onclick="handleStartStop(event)">Start</button>
       </div>
     </div>
 
-    <div class="control-row">
-      <button class="btn btn-secondary" onclick="resetTimer()">Reset</button>
-      <button class="btn btn-primary" id="startBtn" onclick="toggleTimer()">Start</button>
+    <!-- HIIT Quick Parameter Selectors (Timer 3 Only) -->
+    <div class="hiit-config-bar" id="hiitConfigBar">
+      <div class="hiit-box active" id="boxWork" onclick="selectHiitParam('work', event)">
+        <span class="hiit-box-title">Work</span>
+        <span class="hiit-box-val" id="valWork">00:40</span>
+      </div>
+      <div class="hiit-box" id="boxRest" onclick="selectHiitParam('rest', event)">
+        <span class="hiit-box-title">Rest</span>
+        <span class="hiit-box-val" id="valRest">00:20</span>
+      </div>
+      <div class="hiit-box" id="boxRounds" onclick="selectHiitParam('rounds', event)">
+        <span class="hiit-box-title">Rounds</span>
+        <span class="hiit-box-val" id="valRounds">8</span>
+      </div>
+    </div>
+
+    <!-- Bottom Controls -->
+    <div class="bottom-actions">
+      <button class="action-btn" id="btnPlus" onclick="handlePlusBumper(event)">+15s</button>
+      <button class="action-btn" id="btnMinus" onclick="handleMinusBumper(event)" style="display:none;">-5s</button>
+      <button class="action-btn reset-icon" onclick="handleReset(event)">&#8635;</button>
     </div>
   </div>
 
-  <div class="adjust-grid">
-    <button class="adj-btn" onclick="addSeconds(60)">+1 Min</button>
-    <button class="adj-btn" onclick="addSeconds(300)">+5 Min</button>
-    <button class="adj-btn" onclick="addSeconds(600)">+10 Min</button>
-    <button class="adj-btn" onclick="addSeconds(-60)">-1 Min</button>
+  <!-- Color Picker Modal -->
+  <div class="modal-overlay" id="colorModal" onclick="closeModal('colorModal')">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-title">Color Customization</div>
+      <div class="tab-bar">
+        <button class="tab-btn active" id="tab0" onclick="selectColorTarget(0)">Timer 1</button>
+        <button class="tab-btn" id="tab1" onclick="selectColorTarget(1)">Timer 2</button>
+        <button class="tab-btn" id="tab2" onclick="selectColorTarget(2)">HIIT Timer</button>
+      </div>
+
+      <div class="color-wheel-container">
+        <canvas id="colorCanvas" width="220" height="220"></canvas>
+        <div class="lum-container">
+          <label class="setting-label">Luminance / Brightness</label>
+          <input type="range" class="lum-slider" id="lumSlider" min="0.1" max="1" step="0.01" value="0.9" oninput="updateLuminance(this.value)">
+        </div>
+      </div>
+
+      <div class="color-preview-bar">
+        <span class="setting-label">Color Preview</span>
+        <div class="preview-capsule" id="previewCapsule"></div>
+        <span class="hex-badge" id="hexBadge">#56C589</span>
+      </div>
+
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeModal('colorModal')">Done</button>
+        <button class="modal-btn primary" onclick="applyColorChoice()">Apply</button>
+      </div>
+    </div>
   </div>
 
-  <div class="section-title">Quick Presets</div>
-  <div class="preset-grid">
-    <div class="preset-card" onclick="setPreset(60, '1 Minute')">
-      <div class="preset-name">Quick</div>
-      <div class="preset-time">1:00</div>
-    </div>
-    <div class="preset-card" onclick="setPreset(300, '5 Minutes')">
-      <div class="preset-name">Short Break</div>
-      <div class="preset-time">5:00</div>
-    </div>
-    <div class="preset-card" onclick="setPreset(600, '10 Minutes')">
-      <div class="preset-name">Coffee</div>
-      <div class="preset-time">10:00</div>
-    </div>
-    <div class="preset-card" onclick="setPreset(1500, 'Pomodoro')">
-      <div class="preset-name">Pomodoro</div>
-      <div class="preset-time">25:00</div>
-    </div>
-    <div class="preset-card" onclick="setPreset(2700, 'Deep Work')">
-      <div class="preset-name">Deep Work</div>
-      <div class="preset-time">45:00</div>
-    </div>
-    <div class="preset-card" onclick="setPreset(3600, 'Full Hour')">
-      <div class="preset-name">Standard</div>
-      <div class="preset-time">60:00</div>
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal" onclick="closeModal('settingsModal')">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-title">Timer Names & Options</div>
+      <div class="setting-row">
+        <label class="setting-label">Timer 1 Name</label>
+        <input type="text" class="input-text" id="nameInput0" maxlength="16">
+      </div>
+      <div class="setting-row">
+        <label class="setting-label">Timer 2 Name</label>
+        <input type="text" class="input-text" id="nameInput1" maxlength="16">
+      </div>
+      <div class="setting-row">
+        <label class="setting-label">HIIT Timer Name</label>
+        <input type="text" class="input-text" id="nameInput2" maxlength="16">
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeModal('settingsModal')">Cancel</button>
+        <button class="modal-btn primary" onclick="saveSettings()">Save</button>
+      </div>
     </div>
   </div>
 
   <script src="bridge.js"></script>
   <script>
-    let totalSeconds = 300;
-    let remainingSeconds = 300;
-    let timerInterval = null;
-    let isRunning = false;
+    const RADIUS = 130;
+    const CIRCUMFERENCE = 2 * Math.PI * RADIUS; // 816.81
+    const STORAGE_KEY = 'ok_multitimer_master_v3';
 
-    const CIRCUMFERENCE = 2 * Math.PI * 110;
-    const progressBar = document.getElementById('progressBar');
-    const timeDisplay = document.getElementById('timeDisplay');
-    const statusLabel = document.getElementById('statusLabel');
-    const startBtn = document.getElementById('startBtn');
+    const defaultTimers = [
+      { name: 'Timer 1', color: '#56c589', h: 0, m: 1, s: 0, totalSec: 60, currentSec: 60, isRunning: false, endTime: 0 },
+      { name: 'Timer 2', color: '#38b6ff', h: 4, m: 0, s: 0, totalSec: 14400, currentSec: 14400, isRunning: false, endTime: 0 },
+      { 
+        name: 'HIIT Timer', 
+        color: '#a855f7', 
+        isHiit: true,
+        workSec: 40,
+        restSec: 20,
+        totalRounds: 8,
+        currentRound: 1,
+        phase: 'work',
+        currentSec: 40,
+        isRunning: false,
+        endTime: 0
+      }
+    ];
 
-    function updateDisplay() {
-      const mins = Math.floor(remainingSeconds / 60);
-      const secs = remainingSeconds % 60;
-      timeDisplay.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-      
-      const fraction = totalSeconds > 0 ? remainingSeconds / totalSeconds : 0;
-      const offset = CIRCUMFERENCE * (1 - fraction);
-      progressBar.style.strokeDashoffset = offset;
+    let timers = JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultTimers;
+    let currentTimerIdx = 0;
+    let activeUnit = null;
+    let activeHiitParam = 'work';
+    let isDraggingDial = false;
+    let colorTargetIdx = 0;
+    let currentHue = 140;
+    let currentSat = 0.8;
+    let currentLum = 0.85;
+
+    // Elements
+    const dialWrapper = document.getElementById('dialWrapper');
+    const ringProgress = document.getElementById('ringProgress');
+    const dialHandle = document.getElementById('dialHandle');
+    const timerLabel = document.getElementById('timerLabel');
+    const hiitRoundBadge = document.getElementById('hiitRoundBadge');
+    const hiitConfigBar = document.getElementById('hiitConfigBar');
+    const txtH = document.getElementById('txtH');
+    const txtM = document.getElementById('txtM');
+    const txtS = document.getElementById('txtS');
+    const grpH = document.getElementById('grp-h');
+    const grpM = document.getElementById('grp-m');
+    const grpS = document.getElementById('grp-s');
+    const btnStart = document.getElementById('btnStart');
+    const btnPlus = document.getElementById('btnPlus');
+    const btnMinus = document.getElementById('btnMinus');
+    const dots = document.querySelectorAll('.dot');
+    const colorCanvas = document.getElementById('colorCanvas');
+    const previewCapsule = document.getElementById('previewCapsule');
+    const hexBadge = document.getElementById('hexBadge');
+    const lumSlider = document.getElementById('lumSlider');
+
+    ringProgress.style.strokeDasharray = `${CIRCUMFERENCE} ${CIRCUMFERENCE}`;
+
+    function triggerHaptic(type) {
+      if (window.haptic) {
+        window.haptic(type);
+      }
     }
 
-    function toggleTimer() {
-      if (typeof haptic === 'function') haptic('click');
-      
-      if (isRunning) {
+    function triggerNotify(title, msg) {
+      if (window.sendNotification) {
+        window.sendNotification(title, msg);
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(timers));
+    }
+
+    // Interval ticker for background-proof accuracy
+    setInterval(() => {
+      const now = Date.now();
+      let stateChanged = false;
+
+      timers.forEach((t, idx) => {
+        if (!t.isRunning) return;
+
+        if (t.isHiit) {
+          const diff = Math.max(0, Math.ceil((t.endTime - now) / 1000));
+          if (diff !== t.currentSec) {
+            t.currentSec = diff;
+            stateChanged = true;
+
+            // 3-2-1 Audio warnings
+            if (t.currentSec <= 3 && t.currentSec > 0) {
+              playTone(520, 0.1);
+              triggerHaptic('click');
+            }
+
+            if (t.currentSec <= 0) {
+              handleHiitTransition(t);
+            }
+          }
+        } else {
+          const diff = Math.max(0, Math.ceil((t.endTime - now) / 1000));
+          if (diff !== t.currentSec) {
+            t.currentSec = diff;
+            t.h = Math.floor(t.currentSec / 3600);
+            t.m = Math.floor((t.currentSec % 3600) / 60);
+            t.s = t.currentSec % 60;
+            stateChanged = true;
+
+            if (t.currentSec <= 0) {
+              t.isRunning = false;
+              t.currentSec = 0;
+              triggerNotify(t.name, "Time is up!");
+              triggerHaptic('heavy');
+              playAlarmSound();
+            }
+          }
+        }
+      });
+
+      if (stateChanged) {
+        render();
+        saveState();
+      }
+    }, 200);
+
+    function handleHiitTransition(t) {
+      if (t.phase === 'work') {
+        t.phase = 'rest';
+        t.currentSec = t.restSec;
+        t.endTime = Date.now() + (t.restSec * 1000);
+        triggerHaptic('double');
+        playTone(350, 0.4);
+      } else {
+        if (t.currentRound < t.totalRounds) {
+          t.currentRound++;
+          t.phase = 'work';
+          t.currentSec = t.workSec;
+          t.endTime = Date.now() + (t.workSec * 1000);
+          triggerHaptic('double');
+          playTone(880, 0.5);
+        } else {
+          t.isRunning = false;
+          t.phase = 'work';
+          t.currentRound = 1;
+          t.currentSec = t.workSec;
+          triggerNotify("HIIT Workout Completed!", `Completed all ${t.totalRounds} rounds!`);
+          triggerHaptic('heavy');
+          playAlarmSound();
+        }
+      }
+    }
+
+    function updateTheme() {
+      const cur = timers[currentTimerIdx];
+      document.documentElement.style.setProperty('--theme-color', cur.color);
+      document.documentElement.style.setProperty('--theme-glow', cur.color + '55');
+
+      dots.forEach((dot, idx) => dot.classList.toggle('active', idx === currentTimerIdx));
+
+      if (cur.isHiit) {
+        timerLabel.textContent = cur.name || "HIIT TIMER";
+        hiitRoundBadge.style.display = 'block';
+        hiitConfigBar.style.display = 'flex';
+        grpH.style.display = 'none';
+        btnMinus.style.display = 'flex';
+        btnPlus.textContent = '+5s';
+        btnMinus.textContent = '-5s';
+      } else {
+        timerLabel.textContent = cur.name || `TIMER ${currentTimerIdx + 1}`;
+        hiitRoundBadge.style.display = 'none';
+        hiitConfigBar.style.display = 'none';
+        grpH.style.display = 'inline-flex';
+        btnMinus.style.display = 'none';
+        btnPlus.textContent = '+15s';
+      }
+      render();
+    }
+
+    function render() {
+      const cur = timers[currentTimerIdx];
+      btnStart.textContent = cur.isRunning ? "Stop" : "Start";
+
+      if (cur.isHiit) {
+        hiitRoundBadge.textContent = `ROUND ${cur.currentRound} / ${cur.totalRounds}`;
+        timerLabel.textContent = cur.phase === 'work' ? "⚡ WORK INTERVAL" : "🧘 REST INTERVAL";
+        timerLabel.style.color = cur.phase === 'work' ? cur.color : "#38b6ff";
+
+        const m = Math.floor(cur.currentSec / 60);
+        const s = cur.currentSec % 60;
+        txtM.textContent = String(m).padStart(2, '0');
+        txtS.textContent = String(s).padStart(2, '0');
+
+        document.getElementById('valWork').textContent = formatSeconds(cur.workSec);
+        document.getElementById('valRest').textContent = formatSeconds(cur.restSec);
+        document.getElementById('valRounds').textContent = cur.totalRounds;
+
+        grpH.classList.remove('selected');
+        grpM.classList.toggle('selected', activeUnit === 'm');
+        grpS.classList.toggle('selected', activeUnit === 's');
+
+        const totalPhaseSec = cur.phase === 'work' ? cur.workSec : cur.restSec;
+        const fraction = totalPhaseSec > 0 ? (cur.currentSec / totalPhaseSec) : 0;
+        ringProgress.style.strokeDashoffset = CIRCUMFERENCE - (fraction * CIRCUMFERENCE);
+        ringProgress.style.stroke = cur.phase === 'work' ? cur.color : "#38b6ff";
+        dialHandle.style.display = 'none';
+      } else {
+        timerLabel.style.color = "var(--text-muted)";
+        txtH.textContent = cur.h;
+        txtM.textContent = String(cur.m).padStart(2, '0');
+        txtS.textContent = String(cur.s).padStart(2, '0');
+
+        grpH.classList.toggle('selected', activeUnit === 'h');
+        grpM.classList.toggle('selected', activeUnit === 'm');
+        grpS.classList.toggle('selected', activeUnit === 's');
+
+        ringProgress.style.stroke = cur.color;
+
+        if (activeUnit) {
+          dialHandle.style.display = 'block';
+          let fraction = 0;
+          if (activeUnit === 'h') fraction = cur.h / 12;
+          else if (activeUnit === 'm') fraction = cur.m / 60;
+          else if (activeUnit === 's') fraction = cur.s / 60;
+
+          fraction = Math.min(Math.max(fraction, 0), 1);
+          ringProgress.style.strokeDashoffset = CIRCUMFERENCE - (fraction * CIRCUMFERENCE);
+
+          const rect = dialWrapper.getBoundingClientRect();
+          const dialRadius = rect.width / 2;
+          const knobRadius = dialRadius * (RADIUS / 150);
+          const angle = fraction * 2 * Math.PI - (Math.PI / 2);
+          
+          const x = dialRadius + knobRadius * Math.cos(angle) - 13;
+          const y = dialRadius + knobRadius * Math.sin(angle) - 13;
+          dialHandle.style.left = `${x}px`;
+          dialHandle.style.top = `${y}px`;
+        } else {
+          dialHandle.style.display = 'none';
+          const fraction = cur.totalSec > 0 ? (cur.currentSec / cur.totalSec) : 0;
+          ringProgress.style.strokeDashoffset = CIRCUMFERENCE - (fraction * CIRCUMFERENCE);
+        }
+      }
+    }
+
+    function formatSeconds(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function handleUnitClick(unit, e) {
+      e.stopPropagation();
+      const cur = timers[currentTimerIdx];
+      if (cur.isRunning) pauseTimer();
+      activeUnit = (activeUnit === unit) ? null : unit;
+      triggerHaptic('click');
+      render();
+    }
+
+    function selectHiitParam(param, e) {
+      if (e) e.stopPropagation();
+      activeHiitParam = param;
+      document.getElementById('boxWork').classList.toggle('active', param === 'work');
+      document.getElementById('boxRest').classList.toggle('active', param === 'rest');
+      document.getElementById('boxRounds').classList.toggle('active', param === 'rounds');
+      triggerHaptic('click');
+    }
+
+    document.getElementById('appBody').addEventListener('click', () => {
+      if (activeUnit) commitValues();
+    });
+
+    function commitValues() {
+      const cur = timers[currentTimerIdx];
+      activeUnit = null;
+      if (!cur.isHiit) {
+        cur.totalSec = (cur.h * 3600) + (cur.m * 60) + cur.s;
+        cur.currentSec = cur.totalSec;
+      }
+      saveState();
+      render();
+    }
+
+    function getAngle(e) {
+      const rect = dialWrapper.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      let angle = Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI) + 90;
+      if (angle < 0) angle += 360;
+      return angle;
+    }
+
+    function checkTouchOnRing(e) {
+      const rect = dialWrapper.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const dist = Math.hypot(clientX - cx, clientY - cy);
+      const r = rect.width / 2;
+      return dist >= r * 0.55 && dist <= r * 1.2;
+    }
+
+    dialWrapper.addEventListener('pointerdown', (e) => {
+      if (!activeUnit) return;
+      if (checkTouchOnRing(e)) {
+        isDraggingDial = true;
+        updateValueFromAngle(getAngle(e));
+      }
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!isDraggingDial || !activeUnit) return;
+      updateValueFromAngle(getAngle(e));
+    });
+
+    window.addEventListener('pointerup', () => {
+      if (isDraggingDial) {
+        isDraggingDial = false;
+        commitValues();
+      }
+    });
+
+    function updateValueFromAngle(angle) {
+      if (!activeUnit) return;
+      const cur = timers[currentTimerIdx];
+      const fraction = angle / 360;
+
+      if (cur.isHiit) {
+        if (activeUnit === 'm') {
+          const m = Math.min(30, Math.round(fraction * 30));
+          if (activeHiitParam === 'work') cur.workSec = (m * 60) + (cur.workSec % 60);
+          else if (activeHiitParam === 'rest') cur.restSec = (m * 60) + (cur.restSec % 60);
+        } else if (activeUnit === 's') {
+          const s = Math.min(59, Math.round(fraction * 60));
+          if (activeHiitParam === 'work') cur.workSec = (Math.floor(cur.workSec / 60) * 60) + s;
+          else if (activeHiitParam === 'rest') cur.restSec = (Math.floor(cur.restSec / 60) * 60) + s;
+        }
+        cur.currentSec = cur.phase === 'work' ? cur.workSec : cur.restSec;
+      } else {
+        if (activeUnit === 'h') cur.h = Math.min(12, Math.round(fraction * 12));
+        else if (activeUnit === 'm') cur.m = Math.min(59, Math.round(fraction * 60));
+        else if (activeUnit === 's') cur.s = Math.min(59, Math.round(fraction * 60));
+      }
+      triggerHaptic('click');
+      render();
+    }
+
+    function handleStartStop(e) {
+      e.stopPropagation();
+      const cur = timers[currentTimerIdx];
+      if (activeUnit) commitValues();
+
+      if (cur.isRunning) {
         pauseTimer();
       } else {
         startTimer();
@@ -347,98 +991,277 @@
     }
 
     function startTimer() {
-      if (remainingSeconds <= 0) remainingSeconds = totalSeconds;
-      isRunning = true;
-      statusLabel.textContent = "RUNNING";
-      startBtn.textContent = "Pause";
-      startBtn.className = "btn btn-pause";
+      const cur = timers[currentTimerIdx];
+      if (cur.currentSec <= 0) return;
 
-      timerInterval = setInterval(() => {
-        if (remainingSeconds > 0) {
-          remainingSeconds--;
-          updateDisplay();
-        } else {
-          finishTimer();
-        }
-      }, 1000);
+      cur.isRunning = true;
+      cur.endTime = Date.now() + (cur.currentSec * 1000);
+      triggerHaptic('click');
+      saveState();
+      render();
     }
 
     function pauseTimer() {
-      isRunning = false;
-      clearInterval(timerInterval);
-      statusLabel.textContent = "PAUSED";
-      startBtn.textContent = "Resume";
-      startBtn.className = "btn btn-primary";
+      const cur = timers[currentTimerIdx];
+      cur.isRunning = false;
+      triggerHaptic('click');
+      saveState();
+      render();
     }
 
-    function resetTimer() {
-      if (typeof haptic === 'function') haptic('click');
-      isRunning = false;
-      clearInterval(timerInterval);
-      remainingSeconds = totalSeconds;
-      statusLabel.textContent = "READY";
-      startBtn.textContent = "Start";
-      startBtn.className = "btn btn-primary";
-      updateDisplay();
-    }
+    function handleReset(e) {
+      e.stopPropagation();
+      const cur = timers[currentTimerIdx];
+      cur.isRunning = false;
+      activeUnit = null;
 
-    function addSeconds(sec) {
-      if (typeof haptic === 'function') haptic('click');
-      totalSeconds = Math.max(10, totalSeconds + sec);
-      remainingSeconds = Math.max(0, remainingSeconds + sec);
-      updateDisplay();
-    }
-
-    function setPreset(sec, label) {
-      if (typeof haptic === 'function') haptic('double');
-      isRunning = false;
-      clearInterval(timerInterval);
-      totalSeconds = sec;
-      remainingSeconds = sec;
-      statusLabel.textContent = label.toUpperCase();
-      startBtn.textContent = "Start";
-      startBtn.className = "btn btn-primary";
-      updateDisplay();
-    }
-
-    function finishTimer() {
-      clearInterval(timerInterval);
-      isRunning = false;
-      statusLabel.textContent = "COMPLETED";
-      startBtn.textContent = "Start";
-      startBtn.className = "btn btn-primary";
-
-      if (typeof haptic === 'function') haptic('heavy');
-      if (typeof sendNotification === 'function') {
-        sendNotification("OkTimer", "Time is up! Your timer has completed.");
+      if (cur.isHiit) {
+        cur.phase = 'work';
+        cur.currentRound = 1;
+        cur.currentSec = cur.workSec;
+      } else {
+        cur.currentSec = cur.totalSec;
+        cur.h = Math.floor(cur.totalSec / 3600);
+        cur.m = Math.floor((cur.totalSec % 3600) / 60);
+        cur.s = cur.totalSec % 60;
       }
-      playAlertBeep();
+      triggerHaptic('click');
+      saveState();
+      render();
     }
 
-    function toggleWake(cb) {
-      if (typeof setScreenAwake === 'function') {
-        setScreenAwake(cb.checked);
+    function handlePlusBumper(e) {
+      e.stopPropagation();
+      const cur = timers[currentTimerIdx];
+      triggerHaptic('click');
+
+      if (cur.isHiit) {
+        if (activeHiitParam === 'work') cur.workSec += 5;
+        else if (activeHiitParam === 'rest') cur.restSec += 5;
+        else if (activeHiitParam === 'rounds') cur.totalRounds = Math.min(99, cur.totalRounds + 1);
+        cur.currentSec = cur.phase === 'work' ? cur.workSec : cur.restSec;
+      } else {
+        cur.currentSec += 15;
+        if (cur.currentSec > cur.totalSec) cur.totalSec = cur.currentSec;
+        cur.h = Math.floor(cur.currentSec / 3600);
+        cur.m = Math.floor((cur.currentSec % 3600) / 60);
+        cur.s = cur.totalSec % 60;
       }
-      if (typeof haptic === 'function') haptic('click');
+      if (cur.isRunning) cur.endTime = Date.now() + (cur.currentSec * 1000);
+      saveState();
+      render();
     }
 
-    function playAlertBeep() {
+    function handleMinusBumper(e) {
+      e.stopPropagation();
+      const cur = timers[currentTimerIdx];
+      triggerHaptic('click');
+
+      if (cur.isHiit) {
+        if (activeHiitParam === 'work') cur.workSec = Math.max(5, cur.workSec - 5);
+        else if (activeHiitParam === 'rest') cur.restSec = Math.max(5, cur.restSec - 5);
+        else if (activeHiitParam === 'rounds') cur.totalRounds = Math.max(1, cur.totalRounds - 1);
+        cur.currentSec = cur.phase === 'work' ? cur.workSec : cur.restSec;
+        if (cur.isRunning) cur.endTime = Date.now() + (cur.currentSec * 1000);
+        saveState();
+        render();
+      }
+    }
+
+    function switchTimer(idx, e) {
+      if (e) e.stopPropagation();
+      if (currentTimerIdx === idx) return;
+      activeUnit = null;
+      currentTimerIdx = idx;
+      triggerHaptic('click');
+      updateTheme();
+    }
+
+    // Outer Screen Swipe Gestures
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let validSwipe = false;
+
+    window.addEventListener('touchstart', (e) => {
+      if (e.target.closest('#dialWrapper') || e.target.closest('.bottom-actions') || e.target.closest('.modal-sheet') || e.target.closest('.hiit-config-bar')) {
+        validSwipe = false;
+        return;
+      }
+      validSwipe = true;
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+      if (!validSwipe || isDraggingDial) return;
+      const diffX = touchStartX - e.changedTouches[0].screenX;
+      const diffY = touchStartY - e.changedTouches[0].screenY;
+      if (Math.abs(diffX) > 80 && Math.abs(diffX) > Math.abs(diffY) * 1.8) {
+        if (diffX > 0 && currentTimerIdx < 2) switchTimer(currentTimerIdx + 1);
+        else if (diffX < 0 && currentTimerIdx > 0) switchTimer(currentTimerIdx - 1);
+      }
+    }, { passive: true });
+
+    // Audio Engine
+    function playTone(freq, dur) {
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, ctx.currentTime);
-        gain.gain.setValueAtTime(0.3, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start();
-        osc.stop(ctx.currentTime + 0.8);
-      } catch(e) {}
+        osc.stop(ctx.currentTime + dur);
+      } catch (e) {}
     }
 
-    updateDisplay();
+    function playAlarmSound() {
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => playTone(880, 0.25), i * 300);
+      }
+    }
+
+    // Modal Control & Android Back-Button Handling
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      modal.style.display = 'flex';
+      window.activeModal = modal;
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      modal.style.display = 'none';
+      if (window.activeModal === modal) window.activeModal = null;
+    }
+
+    function openSettings(e) {
+      if (e) e.stopPropagation();
+      document.getElementById('nameInput0').value = timers[0].name;
+      document.getElementById('nameInput1').value = timers[1].name;
+      document.getElementById('nameInput2').value = timers[2].name;
+      openModal('settingsModal');
+    }
+
+    function saveSettings() {
+      timers[0].name = document.getElementById('nameInput0').value.trim() || 'Timer 1';
+      timers[1].name = document.getElementById('nameInput1').value.trim() || 'Timer 2';
+      timers[2].name = document.getElementById('nameInput2').value.trim() || 'HIIT Timer';
+      saveState();
+      updateTheme();
+      closeModal('settingsModal');
+    }
+
+    // Circular Spectrum Color Picker Engine
+    function openColorPicker(e) {
+      if (e) e.stopPropagation();
+      selectColorTarget(currentTimerIdx);
+      drawColorWheel();
+      openModal('colorModal');
+    }
+
+    function selectColorTarget(idx) {
+      colorTargetIdx = idx;
+      ['tab0', 'tab1', 'tab2'].forEach((t, i) => {
+        document.getElementById(t).classList.toggle('active', i === idx);
+      });
+      const hex = timers[idx].color;
+      updatePreview(hex);
+    }
+
+    function drawColorWheel() {
+      const ctx = colorCanvas.getContext('2d');
+      const width = colorCanvas.width;
+      const radius = width / 2;
+      const imgData = ctx.createImageData(width, width);
+      const data = imgData.data;
+
+      for (let y = 0; y < width; y++) {
+        for (let x = 0; x < width; x++) {
+          const dx = x - radius;
+          const dy = y - radius;
+          const dist = Math.hypot(dx, dy);
+          const idx = (y * width + x) * 4;
+
+          if (dist <= radius) {
+            let angle = Math.atan2(dy, dx) * (180 / Math.PI) + 180;
+            const sat = dist / radius;
+            const rgb = hsvToRgb(angle, sat, currentLum);
+            data[idx] = rgb[0];
+            data[idx + 1] = rgb[1];
+            data[idx + 2] = rgb[2];
+            data[idx + 3] = 255;
+          } else {
+            data[idx + 3] = 0;
+          }
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+    }
+
+    function handleColorTouch(e) {
+      const rect = colorCanvas.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      const dx = clientX - cx;
+      const dy = clientY - cy;
+      const dist = Math.hypot(dx, dy);
+      const radius = rect.width / 2;
+
+      if (dist <= radius) {
+        currentHue = Math.atan2(dy, dx) * (180 / Math.PI) + 180;
+        currentSat = Math.min(1, dist / radius);
+        const rgb = hsvToRgb(currentHue, currentSat, currentLum);
+        const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
+        updatePreview(hex);
+      }
+    }
+
+    colorCanvas.addEventListener('pointerdown', (e) => {
+      handleColorTouch(e);
+      window.addEventListener('pointermove', handleColorTouch);
+    });
+
+    window.addEventListener('pointerup', () => {
+      window.removeEventListener('pointermove', handleColorTouch);
+    });
+
+    function updateLuminance(val) {
+      currentLum = parseFloat(val);
+      drawColorWheel();
+      const rgb = hsvToRgb(currentHue, currentSat, currentLum);
+      const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
+      updatePreview(hex);
+    }
+
+    function updatePreview(hex) {
+      previewCapsule.style.background = hex;
+      hexBadge.textContent = hex.toUpperCase();
+    }
+
+    function applyColorChoice() {
+      timers[colorTargetIdx].color = hexBadge.textContent;
+      saveState();
+      updateTheme();
+      closeModal('colorModal');
+    }
+
+    function hsvToRgb(h, s, v) {
+      let f = (n, k = (n + h / 60) % 6) => v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
+      return [Math.round(f(5) * 255), Math.round(f(3) * 255), Math.round(f(1) * 255)];
+    }
+
+    function rgbToHex(r, g, b) {
+      return "#" + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+    }
+
+    updateTheme();
   </script>
 </body>
 </html>
