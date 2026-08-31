@@ -16,6 +16,7 @@
         
         <activity
             android:name=".MainActivity"
+            android:label="3-OkTimer"
             android:exported="true"
             android:configChanges="orientation|screenSize|keyboardHidden">
             <intent-filter>
