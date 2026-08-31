@@ -11,8 +11,6 @@ import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import android.view.View
-import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
@@ -24,7 +22,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.WindowCompat
 
 class MainActivity : AppCompatActivity() {
 
@@ -34,22 +31,17 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 1. Edge-to-edge with matching dark system bar theme
-        WindowCompat.setDecorFitsSystemWindows(window, true)
-        window.statusBarColor = Color.parseColor("#0B132B")
-        window.navigationBarColor = Color.parseColor("#0B132B")
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.setSystemBarsAppearance(
-                0,
-                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
-            )
+        try {
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            window.statusBarColor = Color.parseColor("#0B132B")
+            window.navigationBarColor = Color.parseColor("#0B132B")
+        } catch (e: Exception) {
+            // Safe fallback for device-specific window errors
         }
 
         createNotificationChannel()
         requestNotificationPermission()
 
-        // 2. Configure WebView
         webView = WebView(this).apply {
             setBackgroundColor(Color.parseColor("#0B132B"))
             settings.apply {
@@ -70,7 +62,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(webView)
         webView.loadUrl("file:///android_asset/index.html")
 
-        // 3. Hardware Back-Button Router
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 webView.evaluateJavascript("typeof handleAndroidBack === 'function' ? handleAndroidBack() : false;") { result ->
@@ -112,11 +103,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     inner class WebAppInterface(private val context: Context) {
-
         @JavascriptInterface
         fun triggerNotification(title: String, message: String) {
             val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_app_icon)
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
