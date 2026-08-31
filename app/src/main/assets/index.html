@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>3-OkTimer Master</title>
+  <title>3-OkTimer</title>
   <style>
     :root {
       --theme-color: #56c589;
@@ -11,9 +11,10 @@
       --bg-color: #080e18;
       --card-bg: #111a2e;
       --card-border: #1c2b45;
-      --text-muted: rgba(255, 255, 255, 0.4);
+      --text-muted: rgba(255, 255, 255, 0.45);
       --danger: #ff5252;
       --warn: #ffab00;
+      --rest-color: #38b6ff;
     }
 
     * {
@@ -37,7 +38,7 @@
       justify-content: space-between;
       overflow: hidden;
       touch-action: none;
-      padding: max(12px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom));
+      padding: max(10px, env(safe-area-inset-top)) 16px max(14px, env(safe-area-inset-bottom));
     }
 
     /* Top Navigation Header */
@@ -47,7 +48,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 4px 12px;
+      padding: 4px 10px;
       z-index: 10;
     }
 
@@ -55,7 +56,7 @@
       background: transparent;
       border: none;
       color: var(--text-muted);
-      font-size: 22px;
+      font-size: 20px;
       cursor: pointer;
       padding: 6px;
       display: flex;
@@ -92,7 +93,7 @@
       transform: scale(1.35);
     }
 
-    /* Main High-Visibility Dial Area */
+    /* Main Dial Area */
     .timer-container {
       display: flex;
       flex-direction: column;
@@ -126,13 +127,13 @@
 
     .ring-bg {
       stroke: rgba(255, 255, 255, 0.07);
-      stroke-width: 15;
+      stroke-width: 14;
       fill: transparent;
     }
 
     .ring-progress {
       stroke: var(--theme-color);
-      stroke-width: 15;
+      stroke-width: 14;
       stroke-linecap: round;
       fill: transparent;
       stroke-dasharray: 816.81; /* 2 * PI * 130 */
@@ -158,8 +159,8 @@
     /* Center Content Inside Dial */
     .center-content {
       position: relative;
-      width: 80%;
-      height: 80%;
+      width: 82%;
+      height: 82%;
       border-radius: 50%;
       display: flex;
       flex-direction: column;
@@ -169,26 +170,46 @@
       pointer-events: auto;
     }
 
-    .timer-badge {
+    .phase-badge {
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing: 2px;
       text-transform: uppercase;
       color: var(--text-muted);
       margin-bottom: 2px;
       transition: color 0.3s;
+      text-align: center;
+      max-width: 180px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .hiit-round-badge {
-      font-size: 14px;
+    .exercise-title {
+      font-size: 16px;
       font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #ffffff;
+      margin-bottom: 2px;
+      display: none;
+      text-align: center;
+      max-width: 190px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .round-indicator {
+      font-size: 12px;
+      font-weight: 700;
       letter-spacing: 1px;
       color: var(--warn);
       margin-bottom: 2px;
       display: none;
     }
 
-    /* Giant Digits for Maximum Distance Visibility */
+    /* Giant Distance Digits */
     .time-digits {
       font-size: clamp(42px, 12vw, 62px);
       font-weight: 800;
@@ -223,8 +244,8 @@
 
     /* Dimmed, Low-Profile Start/Stop Button */
     .start-btn {
-      margin-top: 10px;
-      font-size: 15px;
+      margin-top: 8px;
+      font-size: 14px;
       font-weight: 600;
       letter-spacing: 1.5px;
       text-transform: uppercase;
@@ -233,7 +254,7 @@
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 20px;
       cursor: pointer;
-      padding: 6px 20px;
+      padding: 6px 22px;
       transition: all 0.2s ease;
     }
 
@@ -243,43 +264,35 @@
       transform: scale(0.95);
     }
 
-    /* HIIT Setup & Info Row */
-    .hiit-config-bar {
+    /* HIIT Setup Block Overview (Timer 3) */
+    .hiit-summary-row {
       display: none;
       width: 100%;
-      max-width: 360px;
+      max-width: 380px;
       justify-content: space-around;
-      margin-top: 14px;
+      margin-top: 10px;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 14px;
-      padding: 8px 12px;
+      padding: 8px 10px;
     }
 
-    .hiit-box {
+    .summary-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 8px;
+      gap: 2px;
     }
 
-    .hiit-box.active {
-      background: rgba(168, 85, 247, 0.2);
-      outline: 1px solid #a855f7;
-    }
-
-    .hiit-box-title {
+    .summary-lbl {
       font-size: 10px;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
       color: var(--text-muted);
+      text-transform: uppercase;
     }
 
-    .hiit-box-val {
-      font-size: 16px;
+    .summary-val {
+      font-size: 13px;
       font-weight: 800;
       color: #ffffff;
     }
@@ -290,7 +303,7 @@
       justify-content: space-between;
       align-items: center;
       width: min(88vw, 360px);
-      margin-top: 10px;
+      margin-top: 8px;
       z-index: 10;
     }
 
@@ -298,7 +311,7 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       color: rgba(255, 255, 255, 0.65);
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       cursor: pointer;
       padding: 10px 16px;
@@ -338,26 +351,26 @@
       max-width: 440px;
       border-top-left-radius: 28px;
       border-top-right-radius: 28px;
-      padding: 24px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-bottom: none;
-      max-height: 85vh;
+      max-height: 86vh;
       overflow-y: auto;
-      padding-bottom: max(28px, env(safe-area-inset-bottom));
+      padding-bottom: max(24px, env(safe-area-inset-bottom));
     }
 
     .modal-title {
-      font-size: 19px;
+      font-size: 18px;
       font-weight: 800;
       color: #ffffff;
     }
 
     .tab-bar {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       background: #080e18;
       padding: 4px;
       border-radius: 12px;
@@ -385,13 +398,13 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 14px;
-      margin: 8px 0;
+      gap: 12px;
+      margin: 4px 0;
     }
 
     #colorCanvas {
-      width: 220px;
-      height: 220px;
+      width: 210px;
+      height: 210px;
       border-radius: 50%;
       touch-action: none;
       box-shadow: 0 0 20px rgba(0,0,0,0.6);
@@ -433,22 +446,22 @@
       justify-content: space-between;
       width: 100%;
       background: #080e18;
-      padding: 10px 14px;
+      padding: 8px 12px;
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.08);
     }
 
     .preview-capsule {
-      width: 50px;
-      height: 26px;
-      border-radius: 13px;
+      width: 48px;
+      height: 24px;
+      border-radius: 12px;
       border: 2px solid rgba(255,255,255,0.4);
       background: var(--theme-color);
     }
 
     .hex-badge {
       font-family: monospace;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       letter-spacing: 1px;
     }
@@ -456,14 +469,14 @@
     .modal-actions {
       display: flex;
       gap: 10px;
-      margin-top: 8px;
+      margin-top: 6px;
     }
 
     .modal-btn {
       flex: 1;
-      padding: 13px;
+      padding: 12px;
       border-radius: 14px;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       border: none;
       cursor: pointer;
@@ -479,32 +492,92 @@
       color: #ffffff;
     }
 
-    .setting-row {
+    /* Structured HIIT Workout Editor */
+    .hiit-list {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 10px;
+      max-height: 42vh;
+      overflow-y: auto;
+      padding-right: 4px;
     }
 
-    .setting-label {
+    .hiit-card {
+      background: #080e18;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .hiit-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .input-plain {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 700;
+      outline: none;
+      width: 70%;
+      padding: 2px;
+    }
+
+    .btn-del {
+      background: transparent;
+      border: none;
+      color: var(--danger);
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .stepper-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stepper-label {
       font-size: 11px;
       font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 1px;
     }
 
-    .input-text {
-      background: #080e18;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
-      padding: 11px 14px;
-      font-size: 15px;
+    .stepper-ctrl {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #1e293b;
+      border: none;
       color: #ffffff;
-      outline: none;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .input-text:focus {
-      border-color: var(--theme-color);
+    .step-val {
+      font-size: 14px;
+      font-weight: 700;
+      min-width: 44px;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
     }
   </style>
 </head>
@@ -532,8 +605,9 @@
       <div class="dial-handle" id="dialHandle"></div>
 
       <div class="center-content">
-        <div class="timer-badge" id="timerLabel">TIMER 1</div>
-        <div class="hiit-round-badge" id="hiitRoundBadge">ROUND 1 / 8</div>
+        <div class="phase-badge" id="phaseBadge">TIMER 1</div>
+        <div class="exercise-title" id="exerciseTitle">BURPEES</div>
+        <div class="round-indicator" id="roundIndicator">EXERCISE 1/4 • ROUND 1/3</div>
         
         <div class="time-digits" id="timeDisplay">
           <div class="digit-group" id="grp-h" onclick="handleUnitClick('h', event)">
@@ -550,26 +624,30 @@
       </div>
     </div>
 
-    <!-- HIIT Quick Parameter Selectors (Timer 3 Only) -->
-    <div class="hiit-config-bar" id="hiitConfigBar">
-      <div class="hiit-box active" id="boxWork" onclick="selectHiitParam('work', event)">
-        <span class="hiit-box-title">Work</span>
-        <span class="hiit-box-val" id="valWork">00:40</span>
+    <!-- HIIT Quick Info Bar (Timer 3 Only) -->
+    <div class="hiit-summary-row" id="hiitSummaryRow">
+      <div class="summary-item">
+        <span class="summary-lbl">Warm Up</span>
+        <span class="summary-val" id="sumWarm">01:00</span>
       </div>
-      <div class="hiit-box" id="boxRest" onclick="selectHiitParam('rest', event)">
-        <span class="hiit-box-title">Rest</span>
-        <span class="hiit-box-val" id="valRest">00:20</span>
+      <div class="summary-item">
+        <span class="summary-lbl">Exercises</span>
+        <span class="summary-val" id="sumExCount">4 Movements</span>
       </div>
-      <div class="hiit-box" id="boxRounds" onclick="selectHiitParam('rounds', event)">
-        <span class="hiit-box-title">Rounds</span>
-        <span class="hiit-box-val" id="valRounds">8</span>
+      <div class="summary-item">
+        <span class="summary-lbl">Rounds</span>
+        <span class="summary-val" id="sumRounds">3 Sets</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-lbl">Cool Down</span>
+        <span class="summary-val" id="sumCool">01:00</span>
       </div>
     </div>
 
     <!-- Bottom Controls -->
     <div class="bottom-actions">
       <button class="action-btn" id="btnPlus" onclick="handlePlusBumper(event)">+15s</button>
-      <button class="action-btn" id="btnMinus" onclick="handleMinusBumper(event)" style="display:none;">-5s</button>
+      <button class="action-btn" id="btnEditHiit" onclick="openHiitEditor(event)" style="display:none;">📝 Edit Plan</button>
       <button class="action-btn reset-icon" onclick="handleReset(event)">&#8635;</button>
     </div>
   </div>
@@ -581,19 +659,19 @@
       <div class="tab-bar">
         <button class="tab-btn active" id="tab0" onclick="selectColorTarget(0)">Timer 1</button>
         <button class="tab-btn" id="tab1" onclick="selectColorTarget(1)">Timer 2</button>
-        <button class="tab-btn" id="tab2" onclick="selectColorTarget(2)">HIIT Timer</button>
+        <button class="tab-btn" id="tab2" onclick="selectColorTarget(2)">HIIT Engine</button>
       </div>
 
       <div class="color-wheel-container">
-        <canvas id="colorCanvas" width="220" height="220"></canvas>
+        <canvas id="colorCanvas" width="210" height="210"></canvas>
         <div class="lum-container">
-          <label class="setting-label">Luminance / Brightness</label>
+          <label class="stepper-label">Luminance / Brightness</label>
           <input type="range" class="lum-slider" id="lumSlider" min="0.1" max="1" step="0.01" value="0.9" oninput="updateLuminance(this.value)">
         </div>
       </div>
 
       <div class="color-preview-bar">
-        <span class="setting-label">Color Preview</span>
+        <span class="stepper-label">Preview</span>
         <div class="preview-capsule" id="previewCapsule"></div>
         <span class="hex-badge" id="hexBadge">#56C589</span>
       </div>
@@ -605,25 +683,45 @@
     </div>
   </div>
 
-  <!-- Settings Modal -->
-  <div class="modal-overlay" id="settingsModal" onclick="closeModal('settingsModal')">
+  <!-- HIIT Workout Plan Editor Modal -->
+  <div class="modal-overlay" id="hiitModal" onclick="closeModal('hiitModal')">
     <div class="modal-sheet" onclick="event.stopPropagation()">
-      <div class="modal-title">Timer Names & Options</div>
-      <div class="setting-row">
-        <label class="setting-label">Timer 1 Name</label>
-        <input type="text" class="input-text" id="nameInput0" maxlength="16">
+      <div class="modal-title">HIIT Workout Blocks</div>
+
+      <div class="stepper-row">
+        <span class="stepper-label">Warm Up Phase</span>
+        <div class="stepper-ctrl">
+          <button class="step-btn" onclick="adjustHiitGlobal('warmUpSec', -15)">-</button>
+          <span class="step-val" id="edWarmVal">01:00</span>
+          <button class="step-btn" onclick="adjustHiitGlobal('warmUpSec', 15)">+</button>
+        </div>
       </div>
-      <div class="setting-row">
-        <label class="setting-label">Timer 2 Name</label>
-        <input type="text" class="input-text" id="nameInput1" maxlength="16">
+
+      <div class="stepper-row">
+        <span class="stepper-label">Total Rounds / Sets</span>
+        <div class="stepper-ctrl">
+          <button class="step-btn" onclick="adjustHiitGlobal('totalRounds', -1)">-</button>
+          <span class="step-val" id="edRoundsVal">3</span>
+          <button class="step-btn" onclick="adjustHiitGlobal('totalRounds', 1)">+</button>
+        </div>
       </div>
-      <div class="setting-row">
-        <label class="setting-label">HIIT Timer Name</label>
-        <input type="text" class="input-text" id="nameInput2" maxlength="16">
+
+      <div class="stepper-row">
+        <span class="stepper-label">Cool Down Phase</span>
+        <div class="stepper-ctrl">
+          <button class="step-btn" onclick="adjustHiitGlobal('coolDownSec', -15)">-</button>
+          <span class="step-val" id="edCoolVal">01:00</span>
+          <button class="step-btn" onclick="adjustHiitGlobal('coolDownSec', 15)">+</button>
+        </div>
       </div>
+
+      <div class="stepper-label" style="margin-top: 4px;">Exercise Blocks</div>
+      <div class="hiit-list" id="hiitExerciseList"></div>
+
+      <button class="modal-btn secondary" onclick="addNewExercise()">+ Add Movement Block</button>
+
       <div class="modal-actions">
-        <button class="modal-btn secondary" onclick="closeModal('settingsModal')">Cancel</button>
-        <button class="modal-btn primary" onclick="saveSettings()">Save</button>
+        <button class="modal-btn primary" onclick="saveHiitPlan()">Save & Apply Plan</button>
       </div>
     </div>
   </div>
@@ -632,30 +730,36 @@
   <script>
     const RADIUS = 130;
     const CIRCUMFERENCE = 2 * Math.PI * RADIUS; // 816.81
-    const STORAGE_KEY = 'ok_multitimer_master_v3';
+    const STORAGE_KEY = 'ok_multitimer_master_v4';
 
     const defaultTimers = [
       { name: 'Timer 1', color: '#56c589', h: 0, m: 1, s: 0, totalSec: 60, currentSec: 60, isRunning: false, endTime: 0 },
       { name: 'Timer 2', color: '#38b6ff', h: 4, m: 0, s: 0, totalSec: 14400, currentSec: 14400, isRunning: false, endTime: 0 },
       { 
-        name: 'HIIT Timer', 
+        name: 'HIIT Workout', 
         color: '#a855f7', 
         isHiit: true,
-        workSec: 40,
-        restSec: 20,
-        totalRounds: 8,
+        warmUpSec: 60,
+        coolDownSec: 60,
+        totalRounds: 3,
         currentRound: 1,
-        phase: 'work',
-        currentSec: 40,
+        currentExIdx: 0,
+        phase: 'idle', // 'idle', 'warmup', 'work', 'rest', 'cooldown'
+        currentSec: 60,
         isRunning: false,
-        endTime: 0
+        endTime: 0,
+        exercises: [
+          { name: 'Burpees', workSec: 40, restSec: 20 },
+          { name: 'Jump Squats', workSec: 40, restSec: 20 },
+          { name: 'Push Ups', workSec: 40, restSec: 20 },
+          { name: 'Plank Hold', workSec: 45, restSec: 15 }
+        ]
       }
     ];
 
     let timers = JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultTimers;
     let currentTimerIdx = 0;
     let activeUnit = null;
-    let activeHiitParam = 'work';
     let isDraggingDial = false;
     let colorTargetIdx = 0;
     let currentHue = 140;
@@ -666,9 +770,10 @@
     const dialWrapper = document.getElementById('dialWrapper');
     const ringProgress = document.getElementById('ringProgress');
     const dialHandle = document.getElementById('dialHandle');
-    const timerLabel = document.getElementById('timerLabel');
-    const hiitRoundBadge = document.getElementById('hiitRoundBadge');
-    const hiitConfigBar = document.getElementById('hiitConfigBar');
+    const phaseBadge = document.getElementById('phaseBadge');
+    const exerciseTitle = document.getElementById('exerciseTitle');
+    const roundIndicator = document.getElementById('roundIndicator');
+    const hiitSummaryRow = document.getElementById('hiitSummaryRow');
     const txtH = document.getElementById('txtH');
     const txtM = document.getElementById('txtM');
     const txtS = document.getElementById('txtS');
@@ -677,7 +782,7 @@
     const grpS = document.getElementById('grp-s');
     const btnStart = document.getElementById('btnStart');
     const btnPlus = document.getElementById('btnPlus');
-    const btnMinus = document.getElementById('btnMinus');
+    const btnEditHiit = document.getElementById('btnEditHiit');
     const dots = document.querySelectorAll('.dot');
     const colorCanvas = document.getElementById('colorCanvas');
     const previewCapsule = document.getElementById('previewCapsule');
@@ -686,28 +791,16 @@
 
     ringProgress.style.strokeDasharray = `${CIRCUMFERENCE} ${CIRCUMFERENCE}`;
 
-    function triggerHaptic(type) {
-      if (window.haptic) {
-        window.haptic(type);
-      }
-    }
-
-    function triggerNotify(title, msg) {
-      if (window.sendNotification) {
-        window.sendNotification(title, msg);
-      }
-    }
-
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(timers));
     }
 
-    // Interval ticker for background-proof accuracy
+    // Precise Background-Proof Interval Engine
     setInterval(() => {
       const now = Date.now();
       let stateChanged = false;
 
-      timers.forEach((t, idx) => {
+      timers.forEach((t) => {
         if (!t.isRunning) return;
 
         if (t.isHiit) {
@@ -716,14 +809,14 @@
             t.currentSec = diff;
             stateChanged = true;
 
-            // 3-2-1 Audio warnings
+            // 3-2-1 Audio Warnings
             if (t.currentSec <= 3 && t.currentSec > 0) {
-              playTone(520, 0.1);
-              triggerHaptic('click');
+              window.playNativeBeep('warning');
+              window.haptic('click');
             }
 
             if (t.currentSec <= 0) {
-              handleHiitTransition(t);
+              handleHiitStep(t);
             }
           }
         } else {
@@ -738,9 +831,10 @@
             if (t.currentSec <= 0) {
               t.isRunning = false;
               t.currentSec = 0;
-              triggerNotify(t.name, "Time is up!");
-              triggerHaptic('heavy');
-              playAlarmSound();
+              window.releaseWakeLock();
+              window.playNativeAlarm();
+              window.sendNotification(t.name, "Timer completed!");
+              window.haptic('heavy');
             }
           }
         }
@@ -752,29 +846,79 @@
       }
     }, 200);
 
-    function handleHiitTransition(t) {
-      if (t.phase === 'work') {
-        t.phase = 'rest';
-        t.currentSec = t.restSec;
-        t.endTime = Date.now() + (t.restSec * 1000);
-        triggerHaptic('double');
-        playTone(350, 0.4);
+    function handleHiitStep(t) {
+      if (t.phase === 'warmup') {
+        t.phase = 'work';
+        t.currentRound = 1;
+        t.currentExIdx = 0;
+        const curEx = t.exercises[0];
+        t.currentSec = curEx.workSec;
+        t.endTime = Date.now() + (curEx.workSec * 1000);
+        window.playNativeBeep('transition');
+        window.haptic('double');
+      } else if (t.phase === 'work') {
+        const curEx = t.exercises[t.currentExIdx];
+        if (curEx.restSec > 0) {
+          t.phase = 'rest';
+          t.currentSec = curEx.restSec;
+          t.endTime = Date.now() + (curEx.restSec * 1000);
+          window.playNativeBeep('transition');
+          window.haptic('double');
+        } else {
+          advanceHiitMovement(t);
+        }
+      } else if (t.phase === 'rest') {
+        advanceHiitMovement(t);
+      } else if (t.phase === 'cooldown') {
+        t.isRunning = false;
+        t.phase = 'idle';
+        t.currentRound = 1;
+        t.currentExIdx = 0;
+        t.currentSec = t.warmUpSec > 0 ? t.warmUpSec : t.exercises[0].workSec;
+        window.releaseWakeLock();
+        window.playNativeAlarm();
+        window.sendNotification("Workout Complete!", "You finished all exercise blocks!");
+        window.haptic('heavy');
+      }
+    }
+
+    function advanceHiitMovement(t) {
+      if (t.currentExIdx < t.exercises.length - 1) {
+        t.currentExIdx++;
+        t.phase = 'work';
+        const nextEx = t.exercises[t.currentExIdx];
+        t.currentSec = nextEx.workSec;
+        t.endTime = Date.now() + (nextEx.workSec * 1000);
+        window.playNativeBeep('transition');
+        window.haptic('double');
       } else {
         if (t.currentRound < t.totalRounds) {
           t.currentRound++;
+          t.currentExIdx = 0;
           t.phase = 'work';
-          t.currentSec = t.workSec;
-          t.endTime = Date.now() + (t.workSec * 1000);
-          triggerHaptic('double');
-          playTone(880, 0.5);
+          const firstEx = t.exercises[0];
+          t.currentSec = firstEx.workSec;
+          t.endTime = Date.now() + (firstEx.workSec * 1000);
+          window.playNativeBeep('transition');
+          window.haptic('double');
         } else {
-          t.isRunning = false;
-          t.phase = 'work';
-          t.currentRound = 1;
-          t.currentSec = t.workSec;
-          triggerNotify("HIIT Workout Completed!", `Completed all ${t.totalRounds} rounds!`);
-          triggerHaptic('heavy');
-          playAlarmSound();
+          if (t.coolDownSec > 0) {
+            t.phase = 'cooldown';
+            t.currentSec = t.coolDownSec;
+            t.endTime = Date.now() + (t.coolDownSec * 1000);
+            window.playNativeBeep('transition');
+            window.haptic('double');
+          } else {
+            t.isRunning = false;
+            t.phase = 'idle';
+            t.currentRound = 1;
+            t.currentExIdx = 0;
+            t.currentSec = t.warmUpSec > 0 ? t.warmUpSec : t.exercises[0].workSec;
+            window.releaseWakeLock();
+            window.playNativeAlarm();
+            window.sendNotification("Workout Complete!", "You finished all rounds!");
+            window.haptic('heavy');
+          }
         }
       }
     }
@@ -787,22 +931,32 @@
       dots.forEach((dot, idx) => dot.classList.toggle('active', idx === currentTimerIdx));
 
       if (cur.isHiit) {
-        timerLabel.textContent = cur.name || "HIIT TIMER";
-        hiitRoundBadge.style.display = 'block';
-        hiitConfigBar.style.display = 'flex';
+        hiitSummaryRow.style.display = 'flex';
+        exerciseTitle.style.display = 'block';
+        roundIndicator.style.display = 'block';
         grpH.style.display = 'none';
-        btnMinus.style.display = 'flex';
-        btnPlus.textContent = '+5s';
-        btnMinus.textContent = '-5s';
+        btnEditHiit.style.display = 'flex';
+        btnPlus.style.display = 'none';
+        updateHiitSummaryText();
       } else {
-        timerLabel.textContent = cur.name || `TIMER ${currentTimerIdx + 1}`;
-        hiitRoundBadge.style.display = 'none';
-        hiitConfigBar.style.display = 'none';
+        hiitSummaryRow.style.display = 'none';
+        exerciseTitle.style.display = 'none';
+        roundIndicator.style.display = 'none';
         grpH.style.display = 'inline-flex';
-        btnMinus.style.display = 'none';
+        btnEditHiit.style.display = 'none';
+        btnPlus.style.display = 'flex';
         btnPlus.textContent = '+15s';
+        phaseBadge.textContent = cur.name || `TIMER ${currentTimerIdx + 1}`;
       }
       render();
+    }
+
+    function updateHiitSummaryText() {
+      const cur = timers[2];
+      document.getElementById('sumWarm').textContent = formatSeconds(cur.warmUpSec);
+      document.getElementById('sumExCount').textContent = `${cur.exercises.length} Blocks`;
+      document.getElementById('sumRounds').textContent = `${cur.totalRounds} Sets`;
+      document.getElementById('sumCool').textContent = formatSeconds(cur.coolDownSec);
     }
 
     function render() {
@@ -810,30 +964,57 @@
       btnStart.textContent = cur.isRunning ? "Stop" : "Start";
 
       if (cur.isHiit) {
-        hiitRoundBadge.textContent = `ROUND ${cur.currentRound} / ${cur.totalRounds}`;
-        timerLabel.textContent = cur.phase === 'work' ? "⚡ WORK INTERVAL" : "🧘 REST INTERVAL";
-        timerLabel.style.color = cur.phase === 'work' ? cur.color : "#38b6ff";
+        const ex = cur.exercises[cur.currentExIdx] || cur.exercises[0];
+        roundIndicator.textContent = `BLOCK ${cur.currentExIdx + 1}/${cur.exercises.length} • SET ${cur.currentRound}/${cur.totalRounds}`;
+        
+        let totalPhaseSec = 60;
+        if (cur.phase === 'warmup') {
+          phaseBadge.textContent = "🔥 WARM UP";
+          phaseBadge.style.color = "var(--warn)";
+          exerciseTitle.textContent = "GET READY";
+          totalPhaseSec = cur.warmUpSec;
+          ringProgress.style.stroke = "var(--warn)";
+        } else if (cur.phase === 'work') {
+          phaseBadge.textContent = "⚡ WORK INTERVAL";
+          phaseBadge.style.color = cur.color;
+          exerciseTitle.textContent = ex.name;
+          totalPhaseSec = ex.workSec;
+          ringProgress.style.stroke = cur.color;
+        } else if (cur.phase === 'rest') {
+          phaseBadge.textContent = "🧘 REST INTERVAL";
+          phaseBadge.style.color = "var(--rest-color)";
+          const nextExName = cur.exercises[cur.currentExIdx + 1]?.name || cur.exercises[0]?.name;
+          exerciseTitle.textContent = `NEXT: ${nextExName}`;
+          totalPhaseSec = ex.restSec;
+          ringProgress.style.stroke = "var(--rest-color)";
+        } else if (cur.phase === 'cooldown') {
+          phaseBadge.textContent = "❄️ COOL DOWN";
+          phaseBadge.style.color = "var(--rest-color)";
+          exerciseTitle.textContent = "RECOVERY";
+          totalPhaseSec = cur.coolDownSec;
+          ringProgress.style.stroke = "var(--rest-color)";
+        } else {
+          phaseBadge.textContent = "READY TO START";
+          phaseBadge.style.color = "var(--text-muted)";
+          exerciseTitle.textContent = ex.name;
+          totalPhaseSec = cur.warmUpSec > 0 ? cur.warmUpSec : ex.workSec;
+          ringProgress.style.stroke = cur.color;
+        }
 
         const m = Math.floor(cur.currentSec / 60);
         const s = cur.currentSec % 60;
         txtM.textContent = String(m).padStart(2, '0');
         txtS.textContent = String(s).padStart(2, '0');
 
-        document.getElementById('valWork').textContent = formatSeconds(cur.workSec);
-        document.getElementById('valRest').textContent = formatSeconds(cur.restSec);
-        document.getElementById('valRounds').textContent = cur.totalRounds;
-
         grpH.classList.remove('selected');
         grpM.classList.toggle('selected', activeUnit === 'm');
         grpS.classList.toggle('selected', activeUnit === 's');
 
-        const totalPhaseSec = cur.phase === 'work' ? cur.workSec : cur.restSec;
         const fraction = totalPhaseSec > 0 ? (cur.currentSec / totalPhaseSec) : 0;
         ringProgress.style.strokeDashoffset = CIRCUMFERENCE - (fraction * CIRCUMFERENCE);
-        ringProgress.style.stroke = cur.phase === 'work' ? cur.color : "#38b6ff";
         dialHandle.style.display = 'none';
       } else {
-        timerLabel.style.color = "var(--text-muted)";
+        phaseBadge.style.color = "var(--text-muted)";
         txtH.textContent = cur.h;
         txtM.textContent = String(cur.m).padStart(2, '0');
         txtS.textContent = String(cur.s).padStart(2, '0');
@@ -880,19 +1061,11 @@
     function handleUnitClick(unit, e) {
       e.stopPropagation();
       const cur = timers[currentTimerIdx];
+      if (cur.isHiit) return; // HIIT is adjusted via Block Editor
       if (cur.isRunning) pauseTimer();
       activeUnit = (activeUnit === unit) ? null : unit;
-      triggerHaptic('click');
+      window.haptic('click');
       render();
-    }
-
-    function selectHiitParam(param, e) {
-      if (e) e.stopPropagation();
-      activeHiitParam = param;
-      document.getElementById('boxWork').classList.toggle('active', param === 'work');
-      document.getElementById('boxRest').classList.toggle('active', param === 'rest');
-      document.getElementById('boxRounds').classList.toggle('active', param === 'rounds');
-      triggerHaptic('click');
     }
 
     document.getElementById('appBody').addEventListener('click', () => {
@@ -958,23 +1131,12 @@
       const cur = timers[currentTimerIdx];
       const fraction = angle / 360;
 
-      if (cur.isHiit) {
-        if (activeUnit === 'm') {
-          const m = Math.min(30, Math.round(fraction * 30));
-          if (activeHiitParam === 'work') cur.workSec = (m * 60) + (cur.workSec % 60);
-          else if (activeHiitParam === 'rest') cur.restSec = (m * 60) + (cur.restSec % 60);
-        } else if (activeUnit === 's') {
-          const s = Math.min(59, Math.round(fraction * 60));
-          if (activeHiitParam === 'work') cur.workSec = (Math.floor(cur.workSec / 60) * 60) + s;
-          else if (activeHiitParam === 'rest') cur.restSec = (Math.floor(cur.restSec / 60) * 60) + s;
-        }
-        cur.currentSec = cur.phase === 'work' ? cur.workSec : cur.restSec;
-      } else {
+      if (!cur.isHiit) {
         if (activeUnit === 'h') cur.h = Math.min(12, Math.round(fraction * 12));
         else if (activeUnit === 'm') cur.m = Math.min(59, Math.round(fraction * 60));
         else if (activeUnit === 's') cur.s = Math.min(59, Math.round(fraction * 60));
       }
-      triggerHaptic('click');
+      window.haptic('click');
       render();
     }
 
@@ -992,11 +1154,30 @@
 
     function startTimer() {
       const cur = timers[currentTimerIdx];
-      if (cur.currentSec <= 0) return;
+      window.stopNativeAlarm();
 
-      cur.isRunning = true;
-      cur.endTime = Date.now() + (cur.currentSec * 1000);
-      triggerHaptic('click');
+      if (cur.isHiit) {
+        cur.isRunning = true;
+        if (cur.phase === 'idle') {
+          if (cur.warmUpSec > 0) {
+            cur.phase = 'warmup';
+            cur.currentSec = cur.warmUpSec;
+          } else {
+            cur.phase = 'work';
+            cur.currentRound = 1;
+            cur.currentExIdx = 0;
+            cur.currentSec = cur.exercises[0].workSec;
+          }
+        }
+        cur.endTime = Date.now() + (cur.currentSec * 1000);
+      } else {
+        if (cur.currentSec <= 0) return;
+        cur.isRunning = true;
+        cur.endTime = Date.now() + (cur.currentSec * 1000);
+      }
+
+      window.acquireWakeLock();
+      window.haptic('click');
       saveState();
       render();
     }
@@ -1004,7 +1185,8 @@
     function pauseTimer() {
       const cur = timers[currentTimerIdx];
       cur.isRunning = false;
-      triggerHaptic('click');
+      window.releaseWakeLock();
+      window.haptic('click');
       saveState();
       render();
     }
@@ -1014,18 +1196,21 @@
       const cur = timers[currentTimerIdx];
       cur.isRunning = false;
       activeUnit = null;
+      window.releaseWakeLock();
+      window.stopNativeAlarm();
 
       if (cur.isHiit) {
-        cur.phase = 'work';
+        cur.phase = 'idle';
         cur.currentRound = 1;
-        cur.currentSec = cur.workSec;
+        cur.currentExIdx = 0;
+        cur.currentSec = cur.warmUpSec > 0 ? cur.warmUpSec : cur.exercises[0].workSec;
       } else {
         cur.currentSec = cur.totalSec;
         cur.h = Math.floor(cur.totalSec / 3600);
         cur.m = Math.floor((cur.totalSec % 3600) / 60);
         cur.s = cur.totalSec % 60;
       }
-      triggerHaptic('click');
+      window.haptic('click');
       saveState();
       render();
     }
@@ -1033,39 +1218,16 @@
     function handlePlusBumper(e) {
       e.stopPropagation();
       const cur = timers[currentTimerIdx];
-      triggerHaptic('click');
+      window.haptic('click');
 
-      if (cur.isHiit) {
-        if (activeHiitParam === 'work') cur.workSec += 5;
-        else if (activeHiitParam === 'rest') cur.restSec += 5;
-        else if (activeHiitParam === 'rounds') cur.totalRounds = Math.min(99, cur.totalRounds + 1);
-        cur.currentSec = cur.phase === 'work' ? cur.workSec : cur.restSec;
-      } else {
-        cur.currentSec += 15;
-        if (cur.currentSec > cur.totalSec) cur.totalSec = cur.currentSec;
-        cur.h = Math.floor(cur.currentSec / 3600);
-        cur.m = Math.floor((cur.currentSec % 3600) / 60);
-        cur.s = cur.totalSec % 60;
-      }
+      cur.currentSec += 15;
+      if (cur.currentSec > cur.totalSec) cur.totalSec = cur.currentSec;
+      cur.h = Math.floor(cur.currentSec / 3600);
+      cur.m = Math.floor((cur.currentSec % 3600) / 60);
+      cur.s = cur.currentSec % 60;
       if (cur.isRunning) cur.endTime = Date.now() + (cur.currentSec * 1000);
       saveState();
       render();
-    }
-
-    function handleMinusBumper(e) {
-      e.stopPropagation();
-      const cur = timers[currentTimerIdx];
-      triggerHaptic('click');
-
-      if (cur.isHiit) {
-        if (activeHiitParam === 'work') cur.workSec = Math.max(5, cur.workSec - 5);
-        else if (activeHiitParam === 'rest') cur.restSec = Math.max(5, cur.restSec - 5);
-        else if (activeHiitParam === 'rounds') cur.totalRounds = Math.max(1, cur.totalRounds - 1);
-        cur.currentSec = cur.phase === 'work' ? cur.workSec : cur.restSec;
-        if (cur.isRunning) cur.endTime = Date.now() + (cur.currentSec * 1000);
-        saveState();
-        render();
-      }
     }
 
     function switchTimer(idx, e) {
@@ -1073,7 +1235,7 @@
       if (currentTimerIdx === idx) return;
       activeUnit = null;
       currentTimerIdx = idx;
-      triggerHaptic('click');
+      window.haptic('click');
       updateTheme();
     }
 
@@ -1083,7 +1245,7 @@
     let validSwipe = false;
 
     window.addEventListener('touchstart', (e) => {
-      if (e.target.closest('#dialWrapper') || e.target.closest('.bottom-actions') || e.target.closest('.modal-sheet') || e.target.closest('.hiit-config-bar')) {
+      if (e.target.closest('#dialWrapper') || e.target.closest('.bottom-actions') || e.target.closest('.modal-sheet') || e.target.closest('.hiit-summary-row')) {
         validSwipe = false;
         return;
       }
@@ -1102,30 +1264,7 @@
       }
     }, { passive: true });
 
-    // Audio Engine
-    function playTone(freq, dur) {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, ctx.currentTime);
-        gain.gain.setValueAtTime(0.25, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + dur);
-      } catch (e) {}
-    }
-
-    function playAlarmSound() {
-      for (let i = 0; i < 3; i++) {
-        setTimeout(() => playTone(880, 0.25), i * 300);
-      }
-    }
-
-    // Modal Control & Android Back-Button Handling
+    // Modals Handling
     function openModal(id) {
       const modal = document.getElementById(id);
       modal.style.display = 'flex';
@@ -1136,23 +1275,6 @@
       const modal = document.getElementById(id);
       modal.style.display = 'none';
       if (window.activeModal === modal) window.activeModal = null;
-    }
-
-    function openSettings(e) {
-      if (e) e.stopPropagation();
-      document.getElementById('nameInput0').value = timers[0].name;
-      document.getElementById('nameInput1').value = timers[1].name;
-      document.getElementById('nameInput2').value = timers[2].name;
-      openModal('settingsModal');
-    }
-
-    function saveSettings() {
-      timers[0].name = document.getElementById('nameInput0').value.trim() || 'Timer 1';
-      timers[1].name = document.getElementById('nameInput1').value.trim() || 'Timer 2';
-      timers[2].name = document.getElementById('nameInput2').value.trim() || 'HIIT Timer';
-      saveState();
-      updateTheme();
-      closeModal('settingsModal');
     }
 
     // Circular Spectrum Color Picker Engine
@@ -1259,6 +1381,107 @@
 
     function rgbToHex(r, g, b) {
       return "#" + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+    }
+
+    // HIIT Block Editor Logic
+    function openHiitEditor(e) {
+      if (e) e.stopPropagation();
+      renderHiitEditor();
+      openModal('hiitModal');
+    }
+
+    function renderHiitEditor() {
+      const cur = timers[2];
+      document.getElementById('edWarmVal').textContent = formatSeconds(cur.warmUpSec);
+      document.getElementById('edRoundsVal').textContent = cur.totalRounds;
+      document.getElementById('edCoolVal').textContent = formatSeconds(cur.coolDownSec);
+
+      const listContainer = document.getElementById('hiitExerciseList');
+      listContainer.innerHTML = '';
+
+      cur.exercises.forEach((ex, idx) => {
+        const card = document.createElement('div');
+        card.className = 'hiit-card';
+        card.innerHTML = `
+          <div class="hiit-card-head">
+            <input type="text" class="input-plain" value="${ex.name}" onchange="updateExName(${idx}, this.value)" placeholder="Exercise Name">
+            <button class="btn-del" onclick="deleteExercise(${idx})">✕</button>
+          </div>
+          <div class="stepper-row">
+            <span class="stepper-label">Work Time</span>
+            <div class="stepper-ctrl">
+              <button class="step-btn" onclick="adjustExWork(${idx}, -5)">-</button>
+              <span class="step-val">${formatSeconds(ex.workSec)}</span>
+              <button class="step-btn" onclick="adjustExWork(${idx}, 5)">+</button>
+            </div>
+          </div>
+          <div class="stepper-row">
+            <span class="stepper-label">Rest Time</span>
+            <div class="stepper-ctrl">
+              <button class="step-btn" onclick="adjustExRest(${idx}, -5)">-</button>
+              <span class="step-val">${formatSeconds(ex.restSec)}</span>
+              <button class="step-btn" onclick="adjustExRest(${idx}, 5)">+</button>
+            </div>
+          </div>
+        `;
+        listContainer.appendChild(card);
+      });
+    }
+
+    function adjustHiitGlobal(field, delta) {
+      const cur = timers[2];
+      if (field === 'totalRounds') {
+        cur.totalRounds = Math.max(1, Math.min(99, cur.totalRounds + delta));
+      } else {
+        cur[field] = Math.max(0, cur[field] + delta);
+      }
+      renderHiitEditor();
+    }
+
+    function updateExName(idx, val) {
+      timers[2].exercises[idx].name = val.trim() || `Movement ${idx + 1}`;
+    }
+
+    function adjustExWork(idx, delta) {
+      const ex = timers[2].exercises[idx];
+      ex.workSec = Math.max(5, ex.workSec + delta);
+      renderHiitEditor();
+    }
+
+    function adjustExRest(idx, delta) {
+      const ex = timers[2].exercises[idx];
+      ex.restSec = Math.max(0, ex.restSec + delta);
+      renderHiitEditor();
+    }
+
+    function addNewExercise() {
+      timers[2].exercises.push({
+        name: `Movement ${timers[2].exercises.length + 1}`,
+        workSec: 40,
+        restSec: 20
+      });
+      renderHiitEditor();
+    }
+
+    function deleteExercise(idx) {
+      if (timers[2].exercises.length <= 1) return;
+      timers[2].exercises.splice(idx, 1);
+      renderHiitEditor();
+    }
+
+    function saveHiitPlan() {
+      const cur = timers[2];
+      cur.phase = 'idle';
+      cur.currentRound = 1;
+      cur.currentExIdx = 0;
+      cur.currentSec = cur.warmUpSec > 0 ? cur.warmUpSec : cur.exercises[0].workSec;
+      saveState();
+      updateTheme();
+      closeModal('hiitModal');
+    }
+
+    function openSettings(e) {
+      openHiitEditor(e);
     }
 
     updateTheme();
