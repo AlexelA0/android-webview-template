@@ -1,9 +1,13 @@
 package com.example.oktimer
 
 import android.Manifest
+import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.media.AudioAttributes
@@ -32,10 +36,83 @@ import androidx.core.content.ContextCompat
 class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
-    private val CHANNEL_ID = "oktimer_alarm_channel"
     private var wakeLock: PowerManager.WakeLock? = null
-    private var mediaPlayer: MediaPlayer? = null
     private var toneGen: ToneGenerator? = null
+
+    companion object {
+        const val CHANNEL_ID = "oktimer_alarm_channel"
+        private var mediaPlayer: MediaPlayer? = null
+
+        fun triggerNativeAlarmPlayback(context: Context, label: String) {
+            try {
+                val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+                val tempWakeLock = pm.newWakeLock(
+                    PowerManager.PARTIAL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
+                    "OkTimer::AlarmWakeTrigger"
+                )
+                tempWakeLock.acquire(15000L)
+            } catch (e: Exception) {}
+
+            try {
+                stopNativeAlarmPlayback()
+                val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+                    ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+
+                mediaPlayer = MediaPlayer().apply {
+                    setDataSource(context, alarmUri)
+                    setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_ALARM)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                            .build()
+                    )
+                    isLooping = false
+                    prepare()
+                    start()
+                }
+            } catch (e: Exception) {}
+
+            try {
+                val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                    vibratorManager.defaultVibrator
+                } else {
+                    @Suppress("DEPRECATION")
+                    context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 500, 200, 500, 200, 800), -1))
+                } else {
+                    @Suppress("DEPRECATION")
+                    vibrator.vibrate(longArrayOf(0, 500, 200, 500, 200, 800), -1)
+                }
+            } catch (e: Exception) {}
+
+            try {
+                val alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+                val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+                    .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+                    .setContentTitle("3-OkTimer Alert")
+                    .setContentText(label)
+                    .setPriority(NotificationCompat.PRIORITY_MAX)
+                    .setCategory(NotificationCompat.CATEGORY_ALARM)
+                    .setSound(alarmSound)
+                    .setAutoCancel(true)
+
+                val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                manager.notify(1001, builder.build())
+            } catch (e: Exception) {}
+        }
+
+        fun stopNativeAlarmPlayback() {
+            try {
+                mediaPlayer?.stop()
+                mediaPlayer?.release()
+                mediaPlayer = null
+            } catch (e: Exception) {}
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -127,37 +204,55 @@ class MainActivity : AppCompatActivity() {
     inner class WebAppInterface(private val context: Context) {
 
         @JavascriptInterface
+        fun scheduleAlarm(targetEpochMs: Double, label: String) {
+            try {
+                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                val intent = Intent(context, AlarmReceiver::class.java).apply {
+                    putExtra("EXTRA_LABEL", label)
+                }
+                val pendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    1001,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+                )
+
+                val triggerTime = targetEpochMs.toLong()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
+                } else {
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
+                }
+            } catch (e: Exception) {}
+        }
+
+        @JavascriptInterface
+        fun cancelAlarm() {
+            try {
+                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                val intent = Intent(context, AlarmReceiver::class.java)
+                val pendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    1001,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+                )
+                alarmManager.cancel(pendingIntent)
+                stopNativeAlarmPlayback()
+            } catch (e: Exception) {}
+        }
+
+        @JavascriptInterface
         fun playNativeAlarm() {
             runOnUiThread {
-                try {
-                    stopNativeAlarm()
-                    val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-                        ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-
-                    mediaPlayer = MediaPlayer().apply {
-                        setDataSource(context, alarmUri)
-                        setAudioAttributes(
-                            AudioAttributes.Builder()
-                                .setUsage(AudioAttributes.USAGE_ALARM)
-                                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                                .build()
-                        )
-                        isLooping = false
-                        prepare()
-                        start()
-                    }
-                } catch (e: Exception) {}
+                triggerNativeAlarmPlayback(context, "Timer Completed")
             }
         }
 
         @JavascriptInterface
         fun stopNativeAlarm() {
             runOnUiThread {
-                try {
-                    mediaPlayer?.stop()
-                    mediaPlayer?.release()
-                    mediaPlayer = null
-                } catch (e: Exception) {}
+                stopNativeAlarmPlayback()
             }
         }
 
@@ -252,7 +347,14 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         toneGen?.release()
-        mediaPlayer?.release()
+        stopNativeAlarmPlayback()
         if (wakeLock?.isHeld == true) wakeLock?.release()
+    }
+}
+
+class AlarmReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent?) {
+        val label = intent?.getStringExtra("EXTRA_LABEL") ?: "Timer Completed"
+        MainActivity.triggerNativeAlarmPlayback(context, label)
     }
 }
