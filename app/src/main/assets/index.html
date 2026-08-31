@@ -136,7 +136,7 @@
       stroke-width: 14;
       stroke-linecap: round;
       fill: transparent;
-      stroke-dasharray: 816.81; /* 2 * PI * 130 */
+      stroke-dasharray: 816.81;
       stroke-dashoffset: 0;
       filter: drop-shadow(0 0 10px var(--theme-glow));
       transition: stroke 0.3s;
@@ -726,8 +726,12 @@
     </div>
   </div>
 
+  <script src="bridge.js"></script>
   <script>
     // Universal Bridge Fallbacks for Web Preview & Native App
+    window.scheduleNativeAlarm = window.scheduleNativeAlarm || function() {};
+    window.cancelNativeAlarm = window.cancelNativeAlarm || function() {};
+
     window.haptic = window.haptic || function(type) {
       if (window.AndroidInterface && window.AndroidInterface.triggerVibrate) {
         window.AndroidInterface.triggerVibrate(type);
@@ -782,6 +786,12 @@
       }
     };
 
+    window.setScreenAwake = window.setScreenAwake || function(enable) {
+      if (window.AndroidInterface && window.AndroidInterface.setKeepScreenOn) {
+        window.AndroidInterface.setKeepScreenOn(enable);
+      }
+    };
+
     function playWebTone(freq, dur) {
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -800,7 +810,7 @@
 
     const RADIUS = 130;
     const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-    const STORAGE_KEY = 'ok_multitimer_master_v5';
+    const STORAGE_KEY = 'ok_multitimer_master_v6';
 
     const defaultTimers = [
       { name: 'Timer 1', color: '#56c589', h: 0, m: 1, s: 0, totalSec: 60, currentSec: 60, isRunning: false, endTime: 0 },
@@ -921,6 +931,7 @@
         const curEx = t.exercises[0];
         t.currentSec = curEx.workSec;
         t.endTime = Date.now() + (curEx.workSec * 1000);
+        window.scheduleNativeAlarm(t.endTime, `WORK: ${curEx.name}`);
         window.playNativeBeep('transition');
         window.haptic('double');
       } else if (t.phase === 'work') {
@@ -929,6 +940,7 @@
           t.phase = 'rest';
           t.currentSec = curEx.restSec;
           t.endTime = Date.now() + (curEx.restSec * 1000);
+          window.scheduleNativeAlarm(t.endTime, "Rest Interval Complete");
           window.playNativeBeep('transition');
           window.haptic('double');
         } else {
@@ -942,7 +954,9 @@
         t.currentRound = 1;
         t.currentExIdx = 0;
         t.currentSec = t.warmUpSec > 0 ? t.warmUpSec : t.exercises[0].workSec;
+        window.cancelNativeAlarm();
         window.releaseWakeLock();
+        window.setScreenAwake(false);
         window.playNativeAlarm();
         window.sendNotification("Workout Complete!", "You finished all exercise blocks!");
         window.haptic('heavy');
@@ -956,6 +970,7 @@
         const nextEx = t.exercises[t.currentExIdx];
         t.currentSec = nextEx.workSec;
         t.endTime = Date.now() + (nextEx.workSec * 1000);
+        window.scheduleNativeAlarm(t.endTime, `WORK: ${nextEx.name}`);
         window.playNativeBeep('transition');
         window.haptic('double');
       } else {
@@ -966,6 +981,7 @@
           const firstEx = t.exercises[0];
           t.currentSec = firstEx.workSec;
           t.endTime = Date.now() + (firstEx.workSec * 1000);
+          window.scheduleNativeAlarm(t.endTime, `WORK: ${firstEx.name}`);
           window.playNativeBeep('transition');
           window.haptic('double');
         } else {
@@ -973,6 +989,7 @@
             t.phase = 'cooldown';
             t.currentSec = t.coolDownSec;
             t.endTime = Date.now() + (t.coolDownSec * 1000);
+            window.scheduleNativeAlarm(t.endTime, "Cool Down Complete");
             window.playNativeBeep('transition');
             window.haptic('double');
           } else {
@@ -981,7 +998,9 @@
             t.currentRound = 1;
             t.currentExIdx = 0;
             t.currentSec = t.warmUpSec > 0 ? t.warmUpSec : t.exercises[0].workSec;
+            window.cancelNativeAlarm();
             window.releaseWakeLock();
+            window.setScreenAwake(false);
             window.playNativeAlarm();
             window.sendNotification("Workout Complete!", "You finished all rounds!");
             window.haptic('heavy');
@@ -1237,10 +1256,13 @@
           }
         }
         cur.endTime = Date.now() + (cur.currentSec * 1000);
+        window.scheduleNativeAlarm(cur.endTime, cur.phase === 'work' ? `WORK: ${cur.exercises[cur.currentExIdx].name}` : "Interval Complete");
+        window.setScreenAwake(true);
       } else {
         if (cur.currentSec <= 0) return;
         cur.isRunning = true;
         cur.endTime = Date.now() + (cur.currentSec * 1000);
+        window.scheduleNativeAlarm(cur.endTime, cur.name || `Timer ${currentTimerIdx + 1}`);
       }
 
       window.acquireWakeLock();
@@ -1252,7 +1274,9 @@
     function pauseTimer() {
       const cur = timers[currentTimerIdx];
       cur.isRunning = false;
+      window.cancelNativeAlarm();
       window.releaseWakeLock();
+      window.setScreenAwake(false);
       window.haptic('click');
       saveState();
       render();
@@ -1263,7 +1287,9 @@
       const cur = timers[currentTimerIdx];
       cur.isRunning = false;
       activeUnit = null;
+      window.cancelNativeAlarm();
       window.releaseWakeLock();
+      window.setScreenAwake(false);
       window.stopNativeAlarm();
 
       if (cur.isHiit) {
@@ -1291,8 +1317,11 @@
       if (cur.currentSec > cur.totalSec) cur.totalSec = cur.currentSec;
       cur.h = Math.floor(cur.currentSec / 3600);
       cur.m = Math.floor((cur.currentSec % 3600) / 60);
-      cur.s = cur.totalSec % 60;
-      if (cur.isRunning) cur.endTime = Date.now() + (cur.currentSec * 1000);
+      cur.s = cur.currentSec % 60;
+      if (cur.isRunning) {
+        cur.endTime = Date.now() + (cur.currentSec * 1000);
+        window.scheduleNativeAlarm(cur.endTime, cur.name || `Timer ${currentTimerIdx + 1}`);
+      }
       saveState();
       render();
     }
